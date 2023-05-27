@@ -1,14 +1,20 @@
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+import os
+from telegram import Bot
+from telegram.ext import CommandHandler
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
+def start(update, context):
+    user_id = update.effective_user.id
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Your Telegram ID is: {user_id}")
+
+def main():
+    bot_token = os.getenv('BOT_TOKEN')
+    bot = Bot(token=bot_token)
+    dispatcher = bot.dispatcher
+
+    start_handler = CommandHandler('start', start)
+    dispatcher.add_handler(start_handler)
+
+    bot.polling()
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token('6024150435:AAFzNNnFVfoYQ0fdYDUOKPamr0H4qR6ektE').build()
-    
-    start_handler = CommandHandler('start', start)
-    application.add_handler(start_handler)
-    
-    application.run_polling()
-#test
+    main()
