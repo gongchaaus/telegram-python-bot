@@ -13,8 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire bot application to the container
 COPY . .
 
-# Start server.
-EXPOSE 8080
-
 # Specify the command to run the bot script
 CMD ["python", "telegram_bot.py"]
