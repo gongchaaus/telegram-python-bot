@@ -1,28 +1,23 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import os
+from telegram.ext import Updater, CommandHandler
 
-# Define a function to handle the /hello command
-def hello(update, context):
+def start(update, context):
     user_id = update.effective_user.id
     context.bot.send_message(chat_id=update.effective_chat.id, text=f"Your Telegram ID is: {user_id}")
 
 def main():
-    # Initialize the Telegram bot
-    updater = Updater(token='YOUR_BOT_TOKEN', use_context=True)
+    token = os.getenv('BOT_TOKEN')
+    port = int(os.getenv('PORT', 8080))
 
-    # Get the dispatcher to register handlers
+    updater = Updater(token=token, use_context=True)
     dispatcher = updater.dispatcher
 
-    # Register the command handler
-    hello_handler = CommandHandler('hello', hello)
-    dispatcher.add_handler(hello_handler)
+    start_handler = CommandHandler('start', start)
+    dispatcher.add_handler(start_handler)
 
-    # Start the bot
-    updater.start_polling()
-
-    # Keep the bot running until interrupted
-    updater.idle()
+    # Start the bot and listen on the provided port
+    updater.start_webhook(listen='0.0.0.0', port=port, url_path=token)
+    updater.bot.setWebhook(f"https://your-cloud-run-service-url/{token}")
 
 if __name__ == '__main__':
     main()
-
-#test
