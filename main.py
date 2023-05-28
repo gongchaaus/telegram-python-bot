@@ -127,8 +127,8 @@ def main() -> None:
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("unset", unset))
 
-    job_queue = application.job_queue
-    job_queue.run_repeating(callback_minute, interval=5, first=10)
+    # job_queue = application.job_queue
+    # job_queue.run_repeating(callback_minute, interval=5, first=10)
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling()
