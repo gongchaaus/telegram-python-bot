@@ -17,7 +17,7 @@ bot.
 
 import logging
 
-import time
+# import time
 
 from telegram import __version__ as TG_VER
 
@@ -127,7 +127,7 @@ def main() -> None:
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("unset", unset))
 
-    schedule.every(10).seconds.do(job)
+    # schedule.every(10).seconds.do(job)
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling()
@@ -136,4 +136,3 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 
-#test
