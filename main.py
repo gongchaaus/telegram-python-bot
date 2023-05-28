@@ -55,11 +55,11 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Help Me!")    
 
 
-async def mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send the user's mobile number when the command /mobile is issued."""
-    user = update.effective_user
-    mobile_number = user.contact.phone_number if user.contact else "Not available"
-    await update.message.reply_text(f"Your mobile number is: {mobile_number}")
+# async def mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+#     """Send the user's mobile number when the command /mobile is issued."""
+#     user = update.effective_user
+#     mobile_number = user.contact.phone_number if user.contact else "Not available"
+#     await update.message.reply_text(f"Your mobile number is: {mobile_number}")
 
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -74,7 +74,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help))
-    application.add_handler(CommandHandler("mobile", mobile))
+    # application.add_handler(CommandHandler("mobile", mobile))
 
     # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
