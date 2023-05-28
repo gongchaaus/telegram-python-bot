@@ -3,23 +3,16 @@
 # This program is dedicated to the public domain under the CC0 license.
 
 """
-Simple Bot to send timed Telegram messages.
-
-This Bot uses the Application class to handle the bot and the JobQueue to send
-timed messages.
+Simple Bot to reply to Telegram messages.
 
 First, a few handler functions are defined. Then, those functions are passed to
 the Application and registered at their respective places.
 Then, the bot is started and runs until we press Ctrl-C on the command line.
 
 Usage:
-Basic Alarm Bot example, sends a message after a set time.
+Basic Echobot example, repeats messages.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
-
-Note:
-To use the JobQueue, you must install PTB via
-`pip install python-telegram-bot[job-queue]`
 """
 
 import logging
@@ -37,25 +30,36 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
         f"{TG_VER} version of this example, "
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram import ForceReply, Update
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+
 
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
+logger = logging.getLogger(__name__)
 
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
-# Best practice would be to replace context with an underscore,
-# since context is an unused local variable.
-# This being an example and not having context present confusing beginners,
-# we decided to have it present as context.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Sends explanation on how to use the bot."""
-    await update.message.reply_text("Hi! Use /set <seconds> to set a timer")
+    """Send a message when the command /start is issued."""
+    user = update.effective_user
+    await update.message.reply_html(
+        rf"Hi {user.mention_html()}!",
+        reply_markup=ForceReply(selective=True),
+    )
 
+async def username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send the user's mobile number when the command /mobile is issued."""
+    user = update.effective_user
+    username = user.username if user.username else "Not available"
+    await update.message.reply_text(f"Your username is: {username}")
+
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Echo the user message."""
+    await update.message.reply_text(update.message.text)
 
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the alarm message."""
@@ -104,12 +108,16 @@ async def unset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def main() -> None:
-    """Run bot."""
+    """Start the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("TOKEN").build()
+    application = Application.builder().token("6024150435:AAFzNNnFVfoYQ0fdYDUOKPamr0H4qR6ektE").build()
 
     # on different commands - answer in Telegram
-    application.add_handler(CommandHandler(["start", "help"], start))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("username", username))
+    # on non command i.e message - echo the message on Telegram
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("unset", unset))
 
