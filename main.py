@@ -17,6 +17,9 @@ bot.
 
 import logging
 
+import schedule
+import time
+
 from telegram import __version__ as TG_VER
 
 try:
@@ -108,6 +111,8 @@ async def unset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = "Timer successfully cancelled!" if job_removed else "You have no active timer."
     await update.message.reply_text(text)
 
+def job():
+    print("I'm working...")
 
 def main() -> None:
     """Start the bot."""
@@ -123,9 +128,13 @@ def main() -> None:
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("unset", unset))
 
+    schedule.every(10).seconds.do(job)
+
     # Run the bot until the user presses Ctrl-C
     application.run_polling()
 
 
 if __name__ == "__main__":
     main()
+
+#test
