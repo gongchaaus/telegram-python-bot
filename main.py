@@ -82,7 +82,6 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
 async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Add a job to the queue."""
     chat_id = update.effective_message.chat_id
-    print(chat_id)
 
     try:
         # args[0] should contain the time for the timer in seconds
@@ -110,8 +109,9 @@ async def unset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = "Timer successfully cancelled!" if job_removed else "You have no active timer."
     await update.message.reply_text(text)
 
-def job():
-    print("I'm working...")
+#chat_id :6282871705
+async def callback_minute(context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=6282871705, text='One message every minute')
 
 def main() -> None:
     """Start the bot."""
@@ -127,7 +127,8 @@ def main() -> None:
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("unset", unset))
 
-    # schedule.every(10).seconds.do(job)
+    job_queue = application.job_queue
+    job_queue.run_repeating(callback_minute, interval=5, first=10)
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling()
