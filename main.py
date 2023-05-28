@@ -50,31 +50,25 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=ForceReply(selective=True),
     )
 
-async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
-    await update.message.reply_text("Help Me!")    
-
-
-# async def mobile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-#     """Send the user's mobile number when the command /mobile is issued."""
-#     user = update.effective_user
-#     mobile_number = user.contact.phone_number if user.contact else "Not available"
-#     await update.message.reply_text(f"Your mobile number is: {mobile_number}")
+    await update.message.reply_text("Help!")
 
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     await update.message.reply_text(update.message.text)
 
+
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6024150435:AAFzNNnFVfoYQ0fdYDUOKPamr0H4qR6ektE").build()
+    application = Application.builder().token("TOKEN").build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help))
-    # application.add_handler(CommandHandler("mobile", mobile))
+    application.add_handler(CommandHandler("help", help_command))
 
     # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
