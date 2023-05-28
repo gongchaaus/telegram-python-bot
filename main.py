@@ -80,6 +80,8 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
 async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Add a job to the queue."""
     chat_id = update.effective_message.chat_id
+    print(chat_id)
+
     try:
         # args[0] should contain the time for the timer in seconds
         due = float(context.args[0])
@@ -88,7 +90,7 @@ async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             return
 
         job_removed = remove_job_if_exists(str(chat_id), context)
-        context.job_queue.run_once(alarm, due, chat_id=chat_id, name=str(chat_id), data=due)
+        context.job_queue.run_repeating(alarm, due, chat_id=chat_id, name=str(chat_id), data=due)
 
         text = "Timer successfully set!"
         if job_removed:
@@ -110,7 +112,7 @@ async def unset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6024150435:AAFzNNnFVfoYQ0fdYDUOKPamr0H4qR6ektE").build()
+    application = Application.builder().token("6024150435:AAGWufEQ00Sgdglcdy8Mfsx_msapPK9pkz8").build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
