@@ -17,8 +17,6 @@ bot.
 
 import logging
 
-# import time
-
 from telegram import __version__ as TG_VER
 
 try:
@@ -35,6 +33,18 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
+import pandas as pd
+
+#MySql Setup
+from sqlalchemy import create_engine
+import pymysql
+pymysql.install_as_MySQLdb()
+
+#Date & Time
+from datetime import datetime, timedelta
+
+
+Gong_cha_MySQL_engine = create_engine('mysql://gong-cha:HelloGongCha2012@34.116.84.145:3306/gong_cha_db')
 
 # Enable logging
 logging.basicConfig(
@@ -67,7 +77,6 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the alarm message."""
     job = context.job
     await context.bot.send_message(job.chat_id, text=f"Beep! {job.data} seconds are over!")
-
 
 def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
     """Remove job with given name. Returns whether job was removed."""
@@ -113,6 +122,21 @@ async def unset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def callback_minute(context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=6282871705, text='One message every minute')
 
+async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+    today= datetime.today().strftime('%Y-%m-%d')
+    tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
+    print(today)
+    
+    query = '''
+        select *
+        from daily_shop_sales
+        where shop_id = 31 and docket_date >= 'start' and docket_date < 'end'
+        '''.format(start=today, finish = tomorrow)
+    data = pd.read_sql(query, Gong_cha_MySQL_engine)
+    total_ex = data['total_ex'].values[0]
+    await update.message.reply_text(total_ex)
+
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
@@ -136,4 +160,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
