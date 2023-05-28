@@ -134,7 +134,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         where shop_id = 31 and docket_date >= '{start}' and docket_date < '{end}'
         '''.format(start=today, end = tomorrow)
     data = pd.read_sql(query, Gong_cha_MySQL_engine)
-    total_ex = data['total_ex'].values[0]
+    total_ex = 0 if data.empty else data['total_ex'].values[0]
     await update.message.reply_text(total_ex)
 
 def main() -> None:
