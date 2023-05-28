@@ -17,7 +17,7 @@ bot.
 
 import logging
 
-import schedule
+# import schedule
 import time
 
 from telegram import __version__ as TG_VER
