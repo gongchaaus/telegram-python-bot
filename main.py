@@ -150,6 +150,7 @@ def main() -> None:
 
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("unset", unset))
+    application.add_handler(CommandHandler("sales", sales))
 
     # job_queue = application.job_queue
     # job_queue.run_repeating(callback_minute, interval=5, first=10)
