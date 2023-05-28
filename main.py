@@ -135,7 +135,8 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         '''.format(start=today, end = tomorrow)
     data = pd.read_sql(query, Gong_cha_MySQL_engine)
     total_ex = 0 if data.empty else data['total_ex'].values[0]
-    await update.message.reply_text(total_ex)
+    await update.message.reply_text(f'Regent Place Today\'s Net Sales: ${total_ex}')
+
 
 def main() -> None:
     """Start the bot."""
