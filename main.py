@@ -1,30 +1,53 @@
+import sys
 import os
-import http
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+print(sys.path)
 
-from flask import Flask, request
-from werkzeug.wrappers import Response
 
-from telegram import Bot, Update
-from telegram.ext import Dispatcher, Filters, CommandHandler, MessageHandler, CallbackContext
+import time
+import flask
+import telebot
+import uuid
+import json
 
-app = Flask(__name__)
 
-def start(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
-    update.message.reply_text(f"Your Telegram ID is: {user_id}")
+# Set up telegram bot
+bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 
-def echo(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(update.message.text)
+# Set up flask
+app = flask.Flask(__name__)
 
-bot = Bot(token=os.environ["BOT_TOKEN"])
+# Process webhook calls
+# @app.route('/', methods=['POST'])
+# def webhook():
+#     if flask.request.headers.get('content-type') == 'application/json':
+#         json_string = flask.request.get_data().decode('utf-8')
 
-dispatcher = Dispatcher(bot=bot, update_queue=None)
-dispatcher.add_handler(CommandHandler("start", start))
-dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
+#         update = telebot.types.Update.de_json(json_string)
+#         bot.process_new_updates([update])
+#         return ('', 204)
+#     else:
+#         return ('Bad request', 400)
 
-@app.post("/")
-def index() -> Response:
-    dispatcher.process_update(
-        Update.de_json(request.get_json(force=True), bot))
+@bot.message_handler(commands=['help', 'start'])
+def send_welcome(message):
+    bot.reply_to(message,
+                 ("Hi there, I am stickersbot!\n\n"
+                  "Please send me a picture of a person and I'll try my best to create a sticker!"))
 
-    return "", http.HTTPStatus.NO_CONTENT
+# Handle all other messages
+@bot.message_handler(func=lambda message: True, content_types=['text'])
+def echo_message(message):
+    bot.reply_to(message, "Please send me a picture!")
+
+@bot.message_handler(func= lambda message: True, content_types=['photo'])
+def get_input_photo(message: telebot.types.Message):
+    bot.reply_to(message, "Thank you for the photo! Please be patient while I create your sticker...")
+
+
+if __name__ == '__main__':
+    PORT = int(os.getenv("PORT")) if os.getenv("PORT") else 8080
+
+    # This is used when running locally. Gunicorn is used to run the
+    # application on Cloud Run. See entrypoint in Dockerfile.
+    app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False)
