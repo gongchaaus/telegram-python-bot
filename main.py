@@ -56,6 +56,12 @@ async def username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     username = user.username if user.username else "Not available"
     await update.message.reply_text(f"Your username is: {username}")
 
+async def phone(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send the user's mobile number when the command /mobile is issued."""
+    contact = update.contact
+    phone = contact.phone_number if contact.phone_number else "Not available"
+    await update.message.reply_text(f"Your phone number is: {phone}")
+
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
@@ -76,6 +82,7 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help))
     application.add_handler(CommandHandler("username", username))
+    application.add_handler(CommandHandler("phone", phone))
 
     # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
