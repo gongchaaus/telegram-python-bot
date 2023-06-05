@@ -150,10 +150,13 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                        added_to_attachment_menu = True if user.added_to_attachment_menu else False
                        )
             print(insert_query)
+            with telegram_db.connect() as con:
+                con.execute(insert_query)
 
         else:
             message = "You've already subscribed"
             await update.message.reply_text(message)
+            return
 
         #add the user details on to subscribes in telegram_db
 
