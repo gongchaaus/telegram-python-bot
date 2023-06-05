@@ -133,7 +133,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user_query = '''
         select *
         from subscribers
-        where username = {username}
+        where username = '{username}'
         '''.format(username = user.username)
         user_df = pd.read_sql(user_query, telegram_db)
         print(user_df)
