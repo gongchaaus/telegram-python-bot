@@ -136,7 +136,10 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         where username = '{username}'
         '''.format(username = user.username)
         user_df = pd.read_sql(user_query, telegram_db)
-        print(user_df)
+        if user_df:
+            print('Not Empty')
+        else:
+            print('Empty')
 
         #add the user details on to subscribes in telegram_db
 
