@@ -44,7 +44,8 @@ pymysql.install_as_MySQLdb()
 from datetime import datetime, timedelta
 
 
-Gong_cha_MySQL_engine = create_engine('mysql://gong-cha:HelloGongCha2012@34.116.84.145:3306/gong_cha_db')
+gong_cha_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/gong_cha_db')
+telegram_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/telegram_db')
 
 # Enable logging
 logging.basicConfig(
@@ -63,11 +64,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=ForceReply(selective=True),
     )
 
-async def username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send the user's mobile number when the command /mobile is issued."""
-    user = update.effective_user
-    username = user.username if user.username else "Not available"
-    await update.message.reply_text(f"Your username is: {username}")
+# async def username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+#     """Send the user's mobile number when the command /mobile is issued."""
+#     user = update.effective_user
+#     username = user.username if user.username else "Not available"
+#     await update.message.reply_text(f"Your username is: {username}")
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
@@ -126,22 +127,39 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """subscribe user on to the bi-daily sales broadcast"""
     #check whehter user has username
     user = update.effective_user
-    username = user.username if user.username else ''
-    message = f"@{username} subscribed" if username else "Please obtain a Telegran Username in Setting -> Edit -> Username "
-    await update.message.reply_text(message)
+
+    if user.username:
+        #check whether the user has subscribed
+        user_query = '''
+        select *
+        from subscribers
+        where username = {username}
+        '''.format(username = user.username)
+        user_df = pd.read_sql(user_query, telegram_db)
+        print(user_df)
+
+        #add the user details on to subscribes in telegram_db
+
+        #send the message to confirm the user
+        message = f"@{user.username} subscribed"
+        await update.message.reply_text(message)
+
+    else:
+        message = "Please obtain a Telegran Username in Setting -> Edit -> Username"
+        #send the message to prompt the user to assign an username
+        await update.message.reply_text(message)
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     today= datetime.today().strftime('%Y-%m-%d')
     tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
-    print(today)
     
     query = '''
         select *
         from daily_shop_sales
         where shop_id = 31 and docket_date >= '{start}' and docket_date < '{end}'
         '''.format(start=today, end = tomorrow)
-    data = pd.read_sql(query, Gong_cha_MySQL_engine)
+    data = pd.read_sql(query, gong_cha_db)
     total_ex = 0 if data.empty else data['total_ex'].values[0]
     await update.message.reply_text(f'Regent Place Today\'s Net Sales: ${total_ex}')
 
@@ -153,7 +171,9 @@ def main() -> None:
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("username", username))
+    
+    # application.add_handler(CommandHandler("username", username))
+
     # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
