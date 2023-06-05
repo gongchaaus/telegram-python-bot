@@ -136,10 +136,23 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         where username = '{username}'
         '''.format(username = user.username)
         user_df = pd.read_sql(user_query, telegram_db)
-        if not(user_df.empty):
-            print('Not Empty')
+        if user_df.empty:
+            insert_query = '''
+            INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
+            VALUES ({chat_id}, {user_id}, '{username}', '{first_name}', '{last_name}', '{language_code}', {is_premium}, {added_to_attachment_menu});
+            '''.format(chat_id = update.effective_message.chat_id, 
+                       user_id = user.user_id, 
+                       username = user.username, 
+                       first_name = user.first_name, 
+                       last_name = user.last_name,
+                       is_premium = user.is_premium,
+                       added_to_attachment_menu = user.added_to_attachment_menu
+                       )
+            print(insert_query)
+
         else:
-            print('Empty')
+            message = "You've already subscribed"
+            await update.message.reply_text(message)
 
         #add the user details on to subscribes in telegram_db
 
