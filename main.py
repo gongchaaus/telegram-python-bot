@@ -144,10 +144,10 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                        user_id = user.id, 
                        username = user.username, 
                        first_name = user.first_name, 
-                       last_name = user.last_name,
-                       language_code = user.language_code,
-                       is_premium = user.is_premium,
-                       added_to_attachment_menu = user.added_to_attachment_menu
+                       last_name = user.last_name if user.last_name else '',
+                       language_code = user.language_code if user.language_code else ''
+                       is_premium = True if user.is_premium else False,
+                       added_to_attachment_menu = True if user.added_to_attachment_menu else False
                        )
             print(insert_query)
 
