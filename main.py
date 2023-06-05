@@ -122,13 +122,12 @@ async def unset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def callback_minute(context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=6282871705, text='One message every minute')
 
-
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """subscribe user on to the bi-daily sales broadcast"""
     #check whehter user has username
     user = update.effective_user
     username = user.username if user.username else ''
-    message = "@{username} subscribed" if username else "Please obtain a Telegran Username in Setting -> Edit -> Username "
+    message = f"@{username} subscribed" if username else "Please obtain a Telegran Username in Setting -> Edit -> Username "
     await update.message.reply_text(message)
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
