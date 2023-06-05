@@ -125,11 +125,12 @@ async def callback_minute(context: ContextTypes.DEFAULT_TYPE):
 
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """subscribe user on to the bi-daily sales broadcast"""
-    #check whehter user has username
+    # check whehter user has username
+    # if so, subscribe the user if he/she hasn't subscribed
     user = update.effective_user
 
     if user.username:
-        #check whether the user has subscribed
+        # check whether the user has subscribed
         user_query = '''
         select *
         from subscribers
@@ -137,6 +138,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         '''.format(username = user.username)
         user_df = pd.read_sql(user_query, telegram_db)
         if user_df.empty:
+            # add the user details on to subscribes in telegram_db
             insert_query = '''
             INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
             VALUES ({chat_id}, {user_id}, '{username}', '{first_name}', '{last_name}', '{language_code}', {is_premium}, {added_to_attachment_menu});
@@ -149,20 +151,16 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                        is_premium = True if user.is_premium else False,
                        added_to_attachment_menu = True if user.added_to_attachment_menu else False
                        )
-            print(insert_query)
+
             with telegram_db.connect() as con:
                 con.execute(insert_query)
+            message = f"@{user.username} subscribed"
+            await update.message.reply_text(message)
 
         else:
+            # let the users know they've subscribed
             message = "You've already subscribed"
             await update.message.reply_text(message)
-            return
-
-        #add the user details on to subscribes in telegram_db
-
-        #send the message to confirm the user
-        message = f"@{user.username} subscribed"
-        await update.message.reply_text(message)
 
     else:
         message = "Please obtain a Telegran Username in Setting -> Edit -> Username"
