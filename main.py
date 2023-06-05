@@ -141,7 +141,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
             VALUES ({chat_id}, {user_id}, '{username}', '{first_name}', '{last_name}', '{language_code}', {is_premium}, {added_to_attachment_menu});
             '''.format(chat_id = update.effective_message.chat_id, 
-                       user_id = user.user_id, 
+                       user_id = user.id, 
                        username = user.username, 
                        first_name = user.first_name, 
                        last_name = user.last_name,
