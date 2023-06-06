@@ -125,10 +125,9 @@ async def callback_minute(context: ContextTypes.DEFAULT_TYPE):
 
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """subscribe user on to the bi-daily sales broadcast"""
+    user = update.effective_user
     # check whehter user has username
     # if so, subscribe the user if he/she hasn't subscribed
-    user = update.effective_user
-
     if user.username:
         # check whether the user has subscribed
         user_query = '''
@@ -156,17 +155,19 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 con.execute(insert_query)
             
             # TODO: add a context.job_queue.run_repeating
+
+            # confirm with the user
             message = f"@{user.username} subscribed"
             await update.message.reply_text(message)
 
         else:
-            # let the users know they've subscribed
+            # let the users know they've already subscribed
             message = "You've already subscribed"
             await update.message.reply_text(message)
 
     else:
-        message = "Please obtain a Telegran Username in Setting -> Edit -> Username"
         #send the message to prompt the user to assign an username
+        message = "Please obtain a Telegran Username in Setting -> Edit -> Username"
         await update.message.reply_text(message)
 
 def net_sales() -> float:
