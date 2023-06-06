@@ -154,6 +154,8 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
             with telegram_db.connect() as con:
                 con.execute(insert_query)
+            
+            # TODO: add a context.job_queue.run_repeating
             message = f"@{user.username} subscribed"
             await update.message.reply_text(message)
 
@@ -203,7 +205,9 @@ def main() -> None:
     application.add_handler(CommandHandler("subscribe", subscribe))
     application.add_handler(CommandHandler("sales", sales))
 
-    # job_queue = application.job_queue
+    job_queue = application.job_queue
+
+    # TODO: get all subscribers and add context.job_queue.run_repeating to each subscriber
     # job_queue.run_repeating(callback_minute, interval=5, first=10)
 
     # Run the bot until the admin presses Ctrl-C
