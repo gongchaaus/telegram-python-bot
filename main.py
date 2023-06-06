@@ -167,8 +167,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         #send the message to prompt the user to assign an username
         await update.message.reply_text(message)
 
-async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-
+def net_sales() -> float:
     today= datetime.today().strftime('%Y-%m-%d')
     tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
     
@@ -179,6 +178,10 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         '''.format(start=today, end = tomorrow)
     data = pd.read_sql(query, gong_cha_db)
     total_ex = 0 if data.empty else data['total_ex'].values[0]
+    return total_ex
+
+async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    total_ex = net_sales()
     await update.message.reply_text(f'Regent Place Today\'s Net Sales: ${total_ex}')
 
 
@@ -203,7 +206,7 @@ def main() -> None:
     # job_queue = application.job_queue
     # job_queue.run_repeating(callback_minute, interval=5, first=10)
 
-    # Run the bot until the user presses Ctrl-C
+    # Run the bot until the admin presses Ctrl-C
     application.run_polling()
 
 
