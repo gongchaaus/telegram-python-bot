@@ -126,10 +126,10 @@ async def callback_minute(context: ContextTypes.DEFAULT_TYPE):
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """subscribe user on to the bi-daily sales broadcast"""
     user = update.effective_user
-    # check whehter user has username
-    # if so, subscribe the user if he/she hasn't subscribed
+    # check whehter user has an username
     if user.username:
-        # check whether the user has subscribed
+        # user has an username
+        # check whether the user has already subscribed
         user_query = '''
         select *
         from subscribers
@@ -137,6 +137,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         '''.format(username = user.username)
         user_df = pd.read_sql(user_query, telegram_db)
         if user_df.empty:
+            # user has not subscribed yet
             # add the user details on to subscribes in telegram_db
             insert_query = '''
             INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
@@ -156,7 +157,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             
             # TODO: add a context.job_queue.run_repeating
 
-            # confirm with the user
+            # confirm the subscription with the user
             message = f"@{user.username} subscribed"
             await update.message.reply_text(message)
 
