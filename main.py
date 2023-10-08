@@ -88,7 +88,6 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
         job.schedule_removal()
     return True
 
-
 async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Add a job to the queue."""
     chat_id = update.effective_message.chat_id
@@ -192,7 +191,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6024150435:AAGWufEQ00Sgdglcdy8Mfsx_msapPK9pkz8").build()
+    application = Application.builder().token("6024150435:AAHAfiX2oIM2sdwgkb-0MeE2B3v-6_OseHI").build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
