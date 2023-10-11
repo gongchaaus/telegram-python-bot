@@ -2,7 +2,6 @@
 # pylint: disable=unused-argument, wrong-import-position
 # This program is dedicated to the public domain under the CC0 license.
 
-#test
 
 """
 Simple Bot to reply to Telegram messages.
@@ -172,22 +171,54 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         message = "Please obtain a Telegran Username in Setting -> Edit -> Username"
         await update.message.reply_text(message)
 
-def net_sales() -> float:
-    today= datetime.today().strftime('%Y-%m-%d')
-    tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
+# def net_sales() -> float:
+#     today= datetime.today().strftime('%Y-%m-%d')
+#     tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
     
-    query = '''
-        select *
-        from daily_shop_sales
-        where shop_id = 31 and docket_date >= '{start}' and docket_date < '{end}'
-        '''.format(start=today, end = tomorrow)
-    data = pd.read_sql(query, gong_cha_db)
-    total_ex = 0 if data.empty else data['total_ex'].values[0]
-    return total_ex
+#     query = '''
+#         select *
+#         from daily_shop_sales
+#         where shop_id = 31 and docket_date >= '{start}' and docket_date < '{end}'
+#         '''.format(start=today, end = tomorrow)
+#     data = pd.read_sql(query, gong_cha_db)
+#     total_ex = 0 if data.empty else data['total_ex'].values[0]
+#     return total_ex
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    total_ex = net_sales()
+    chat_id = update.effective_message.chat_id
+    Store_ID = get_user_store_id(chat_id)
+    shop_id = get_AUPOS_shop_id(Store_ID)
+
+    date = datetime.today()
+    total_ex = get_daily_shop_sales(date,shop_id)
     await update.message.reply_text(f'Regent Place Today\'s Net Sales: ${total_ex}')
+
+def get_user_store_id(chat_id) -> str:
+    sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
+    sheet_name = 'Access'
+    url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+    access_df = pd.read_csv(url)   
+    store_id =  access_df[access_df['chat_id']== chat_id]['Store ID']
+    return store_id.values[0]
+
+def get_AUPOS_shop_id(store_id) -> str:
+  sheet_id = '1ezyBlKquUhYnFwmIKTR4fghI59ZvGaKL35mKbcdeRy4'
+  sheet_name = 'Stores'
+  url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+  store_df = pd.read_csv(url)
+  shop_id = store_df[store_df['Store ID']== Store_ID]['shop_id']
+  return shop_id.values[0]
+
+def get_daily_shop_sales(date, shop_id) -> float:
+  start_datestr = date.strftime("%Y-%m-%d")
+  end_datestr = (date+timedelta(days=1)).strftime("%Y-%m-%d")
+  query = '''
+  SELECT *
+  FROM daily_shop_sales
+  WHERE shop_id = {shop_id} and docket_date >='{start_datestr}' and docket_date <'{end_datestr}'
+  '''.format(shop_id = shop_id,start_datestr = start_datestr, end_datestr = end_datestr)
+  daily_sales_df = pd.read_sql(query, gong_cha_db)
+  return daily_sales_df['total_ex'].values[0]
 
 
 def main() -> None:
