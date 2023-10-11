@@ -188,10 +188,11 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.effective_message.chat_id
     Store_ID = get_user_store_id(chat_id)
     shop_id = get_AUPOS_shop_id(Store_ID)
-
+    await update.message.reply_text(f'Store ID: {Store_ID}')
+    await update.message.reply_text(f'shop_id ID: {shop_id}')
     date = datetime.today()
     total_ex = get_daily_shop_sales(date,shop_id)
-    await update.message.reply_text(f'Regent Place Today\'s Net Sales: ${total_ex}')
+    await update.message.reply_text(f'Today\'s Net Sales: ${total_ex}')
 
 def get_user_store_id(chat_id) -> str:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
