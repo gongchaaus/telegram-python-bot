@@ -35,6 +35,7 @@ from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 import pandas as pd
+import numpy as np
 
 #MySql Setup
 from sqlalchemy import create_engine
@@ -126,55 +127,40 @@ async def callback_minute(context: ContextTypes.DEFAULT_TYPE):
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """subscribe user on to the bi-daily sales broadcast"""
     user = update.effective_user
-    # check whehter user has an username
-    if user.username:
-        # user has an username
-        # check whether the user has already subscribed
-        user_query = '''
-        select *
-        from subscribers
-        where username = '{username}'
-        '''.format(username = user.username)
-        user_df = pd.read_sql(user_query, telegram_db)
-        if user_df.empty:
-            # user has not subscribed yet
-            # add the user details on to subscribes in telegram_db
-            insert_query = '''
-            INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
-            VALUES ({chat_id}, {user_id}, '{username}', '{first_name}', '{last_name}', '{language_code}', {is_premium}, {added_to_attachment_menu});
-            '''.format(chat_id = update.effective_message.chat_id, 
-                       user_id = user.id, 
-                       username = user.username, 
-                       first_name = user.first_name, 
-                       last_name = user.last_name if user.last_name else '',
-                       language_code = user.language_code if user.language_code else '',
-                       is_premium = True if user.is_premium else False,
-                       added_to_attachment_menu = True if user.added_to_attachment_menu else False
-                       )
+    message = update.message
+    chat_id = update.message.chat_id
+    # upsert the user details into subscribes in telegram_db
+    await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
+    upsert_user_details(user, message)
+    
+    store_id = get_user_store_id(chat_id)
+    # await update.message.reply_text(f'Store ID: {store_id}')
+    if store_id:
+        shop_id, store_name = get_store_details(store_id)
+        await update.message.reply_text(f'You have access to {store_name}')
 
-            with telegram_db.connect() as con:
-                con.execute(insert_query)
-            
-            # TODO: add a context.job_queue.run_repeating
+        today = datetime.today()
+        date_list = [today.date() - timedelta(days=x) for x in range(today.weekday())]
+        # await update.message.reply_text(f'date_list size {len(date_list)}')
 
-            # confirm the subscription with the user
-            message = f"@{user.username} subscribed"
-            await update.message.reply_text(message)
-
-        else:
-            # let the users know they've already subscribed
-            message = "You've already subscribed"
-            await update.message.reply_text(message)
+        for date in date_list:
+            sales = get_daily_shop_sales(date,shop_id)
+            target = get_daily_shop_target(date, store_id)
+            await update.message.reply_text(f'{date}\nSales incl GST: ${sales},\nTarget is: ${target}')
 
     else:
-        #send the message to prompt the user to assign an username
-        message = "Please obtain a Telegran Username in Setting -> Edit -> Username"
-        await update.message.reply_text(message)
+        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
+  
+
+     
+    # TODO: add a context.job_queue.run_repeating
+
+
+
 
 # def net_sales() -> float:
 #     today= datetime.today().strftime('%Y-%m-%d')
 #     tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
-    
 #     query = '''
 #         select *
 #         from daily_shop_sales
@@ -186,47 +172,82 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.effective_message.chat_id
-    await update.message.reply_text(f'chat_id: ${chat_id}')
-    Store_ID = get_user_store_id(chat_id)
-    shop_id = get_AUPOS_shop_id(Store_ID)
-    await update.message.reply_text(f'Store ID: ${Store_ID}')
-    await update.message.reply_text(f'shop_id ID: ${shop_id}')
+    # await update.message.reply_text(f'chat_id: {chat_id}')
+    store_id = get_user_store_id(chat_id)
+    # await update.message.reply_text(f'Store ID: {store_id}')
+    shop_id, _ = get_store_details(store_id)
+    # await update.message.reply_text(f'shop_id ID: {shop_id}')
     date = datetime.today()
     total_ex = get_daily_shop_sales(date,shop_id)
-    await update.message.reply_text(f'Today\'s Net Sales: ${total_ex}')
+    await update.message.reply_text(f'Today\'s Sales incl GST: ${total_ex*1.1}')
+
+def upsert_user_details(user, message) -> None:
+    upsert_query = '''
+    INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
+    VALUES ({chat_id}, {user_id}, '{username}', '{first_name}', '{last_name}', '{language_code}', {is_premium}, {added_to_attachment_menu})
+    ON DUPLICATE KEY UPDATE
+        user_id = {user_id},
+        username = '{username}',
+        first_name = '{first_name}',
+        last_name = '{last_name}',
+        language_code = '{language_code}',
+        is_premium = {is_premium},
+        added_to_attachment_menu = {added_to_attachment_menu};
+    '''.format(chat_id = message.chat_id, 
+                user_id = user.id, 
+                username = user.username if user.username else '', 
+                first_name = user.first_name, 
+                last_name = user.last_name if user.last_name else '',
+                language_code = user.language_code if user.language_code else '',
+                is_premium = True if user.is_premium else False,
+                added_to_attachment_menu = True if user.added_to_attachment_menu else False
+                )
+    with telegram_db.connect() as con:
+        con.execute(upsert_query)
 
 def get_user_store_id(chat_id) -> str:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
     sheet_name = 'Access'
     url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
     access_df = pd.read_csv(url)   
-    store_id =  access_df[access_df['chat_id']== chat_id]['Store ID']
-    return store_id.values[0]
+    store_id =  access_df[(access_df['chat_id']== chat_id) & (access_df['Status']== 'Active')]['Store ID']
+    return '' if store_id.size == 0 else store_id.values[0]
 
-def get_AUPOS_shop_id(store_id) -> str:
-  sheet_id = '1ezyBlKquUhYnFwmIKTR4fghI59ZvGaKL35mKbcdeRy4'
-  sheet_name = 'Stores'
-  url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
-  store_df = pd.read_csv(url)
-  shop_id = store_df[store_df['Store ID']== Store_ID]['shop_id']
-  return shop_id.values[0]
+def get_store_details(store_id):
+    sheet_id = '1ezyBlKquUhYnFwmIKTR4fghI59ZvGaKL35mKbcdeRy4'
+    sheet_name = 'Stores'
+    url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+    store_df = pd.read_csv(url)
+    shop_id = store_df[store_df['Store ID']== store_id]['shop_id']
+    store_name = store_df[store_df['Store ID']== store_id]['Store Name']
+    return shop_id.values[0], store_name.values[0]
 
 def get_daily_shop_sales(date, shop_id) -> float:
-  start_datestr = date.strftime("%Y-%m-%d")
-  end_datestr = (date+timedelta(days=1)).strftime("%Y-%m-%d")
-  query = '''
-  SELECT *
-  FROM daily_shop_sales
-  WHERE shop_id = {shop_id} and docket_date >='{start_datestr}' and docket_date <'{end_datestr}'
-  '''.format(shop_id = shop_id,start_datestr = start_datestr, end_datestr = end_datestr)
-  daily_sales_df = pd.read_sql(query, gong_cha_db)
-  return daily_sales_df['total_ex'].values[0]
+    start_datestr = date.strftime("%Y-%m-%d")
+    end_datestr = (date+timedelta(days=1)).strftime("%Y-%m-%d")
+    query = '''
+    SELECT *
+    FROM daily_shop_sales
+    WHERE shop_id = {shop_id} and docket_date >='{start_datestr}' and docket_date <'{end_datestr}'
+    '''.format(shop_id = shop_id,start_datestr = start_datestr, end_datestr = end_datestr)
+    daily_sales_df = pd.read_sql(query, gong_cha_db)
+    return 0 if daily_sales_df.size == 0 else daily_sales_df['total_ex'].values[0]*1.1
+
+def get_daily_shop_target(date, store_id) -> float:
+    sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
+    sheet_name = 'Targets'
+    url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+    target_df = pd.read_csv(url)
+    target_df['Date'] = pd.to_datetime(target_df['Date'])
+    target =  target_df[(target_df['Store ID']== store_id) & (target_df['Date']== pd.to_datetime(date))]
+    return 0 if target.size == 0 else target['Amount'].values[0]
 
 
 def main() -> None:
     """Start the bot."""
+
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6024150435:AAHAfiX2oIM2sdwgkb-0MeE2B3v-6_OseHI").build()
+    application = Application.builder().token("6225546622:AAEUKdH5aK2IXhF_8IgefCtgFArDkRiOokk").build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
