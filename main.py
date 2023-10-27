@@ -178,14 +178,17 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         # await update.message.reply_text(f'{end_str}')
         # await update.message.reply_text(f'{shop_id_list_str}')
 
-        status, shops_sales = get_batch_shops_sales(start_str, end_str, shop_id_list_str)
+        status, payload_json, data, sales_df = get_batch_sales_df(start_str, end_str, shop_id_list_str)
         await update.message.reply_text(f'Status: {status}')
-        shops_sales.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
-        shops_sales['shop_id'] = shops_sales['shop_id'].astype(int)
+        await update.message.reply_text(f'payload_json: {payload_json}')
+        await update.message.reply_text(f'data: {data}')
+        await update.message.reply_text(f'sales_df: {sales_df}')
+        sales_df.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
+        sales_df['shop_id'] = sales_df['shop_id'].astype(int)
 
         stores = get_enrolled_stores()
         stores['shop_id'] = stores['shop_id'].astype(int)
-        stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], shops_sales[['shop_id', 'sales']], on=['shop_id'], how = 'left')
+        stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], sales_df[['shop_id', 'sales']], on=['shop_id'], how = 'left')
 
         sales = stores[stores['Store ID'] == store_id]['sales']
         sales_val = sales.values[0]
@@ -283,7 +286,6 @@ def get_daily_shop_target(date, store_id) -> float:
 
 
 
-
 def get_enrolled_store_ids() -> list:
   sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
   sheet_name = 'Access'
@@ -305,7 +307,7 @@ def get_enrolled_stores() -> list:
   return store_df
 
 
-def get_batch_shops_sales(start, end, shop_id_list):
+def get_batch_sales_df(start, end, shop_id_list):
 
     status, access_token = get_access_token()
 
@@ -329,8 +331,6 @@ def get_batch_shops_sales(start, end, shop_id_list):
 
     payload_json = json.dumps(payload)
 
-    #   await update.message.reply_text(f'{payload_json}')
-
     headers = {
     'Content-Type': 'application/json',
     'userTenantId': 'gc',
@@ -346,7 +346,7 @@ def get_batch_shops_sales(start, end, shop_id_list):
     sales = json_data["data"]["content"]
     sales_df = pd.DataFrame(sales)
 
-    return status, sales_df
+    return status, payload_json, data, sales_df
 
 def get_access_token():
     conn = http.client.HTTPSConnection("pos.aupos.com.au")
