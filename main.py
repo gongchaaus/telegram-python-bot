@@ -157,6 +157,9 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
   
     # TODO: add a context.job_queue.run_repeating
+async def token(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    status, token = get_access_token()
+    await update.message.reply_text(f'Status: {status} \nToken: {token}')
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
@@ -360,7 +363,26 @@ def get_batch_shops_sales(start, end, shop_id_list):
 
   return sales_df
 
+def get_access_token():
+    conn = http.client.HTTPSConnection("pos.aupos.com.au")
+    payload = json.dumps({
+    "username": "gc-admin",
+    "password": "ofbiz"
+    })
+    headers = {
+    'userTenantId': 'gc',
+    'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+    'Content-Type': 'application/json'
+    }
+    conn.request("POST", "/api/auth/token", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
 
+    json_data = json.loads(data.decode("utf-8"))
+
+    status = json_data["status"]
+    access_token = json_data["data"]["access_token"]
+    return status, access_token
 
 def main() -> None:
     """Start the bot."""
