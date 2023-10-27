@@ -157,7 +157,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     store_id = get_user_store_id(chat_id)
-    # await update.message.reply_text(f'Store ID: {store_id}')
+    await update.message.reply_text(f'Store ID: {store_id}')
     if store_id:
         shop_id, store_name = get_store_details(store_id)
 
