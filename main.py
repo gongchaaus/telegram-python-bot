@@ -161,7 +161,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     store_id = get_user_store_id(chat_id)
-    await update.message.reply_text(f'Store ID: {store_id}')
+    # await update.message.reply_text(f'Store ID: {store_id}')
     if store_id:
         shop_id, store_name = get_store_details(store_id)
 
@@ -171,18 +171,17 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         end_str = end.strftime("%Y-%m-%d")
         shop_id_list = get_enrolled_stores()['shop_id'].astype(int).to_list()
         shop_id_list_str = [str(x) for x in shop_id_list]
-        await update.message.reply_text(f'{start_str}')
-        await update.message.reply_text(f'{end_str}')
-        await update.message.reply_text(f'{shop_id_list_str}')
+        # await update.message.reply_text(f'{start_str}')
+        # await update.message.reply_text(f'{end_str}')
+        # await update.message.reply_text(f'{shop_id_list_str}')
 
         shops_sales = get_batch_shops_sales(start_str, end_str, shop_id_list_str)
-        await update.message.reply_text(f'{shops_sales.size}')
+        # await update.message.reply_text(f'{shops_sales.size}')
         shops_sales.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
         shops_sales['shop_id'] = shops_sales['shop_id'].astype(int)
 
         stores = get_enrolled_stores()
         stores['shop_id'] = stores['shop_id'].astype(int)
-
         stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], shops_sales[['shop_id', 'sales']], on=['shop_id'], how = 'left')
 
         sales = stores[stores['Store ID'] == store_id]['sales']
