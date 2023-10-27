@@ -178,8 +178,8 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         # await update.message.reply_text(f'{end_str}')
         await update.message.reply_text(f'{shop_id_list_str}')
 
-        shops_sales = get_batch_shops_sales(start_str, end_str, shop_id_list_str)
-        # await update.message.reply_text(f'{shops_sales.size}')
+        status, shops_sales = get_batch_shops_sales(start_str, end_str, shop_id_list_str)
+        await update.message.reply_text(f'Status: {status}')
         shops_sales.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
         shops_sales['shop_id'] = shops_sales['shop_id'].astype(int)
 
@@ -306,25 +306,11 @@ def get_enrolled_stores() -> list:
 
 
 def get_batch_shops_sales(start, end, shop_id_list):
-  conn = http.client.HTTPSConnection("pos.aupos.com.au")
-  payload = json.dumps({
-    "username": "gc-admin",
-    "password": "ofbiz"
-  })
-  headers = {
-    'userTenantId': 'gc',
-    'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-    'Content-Type': 'application/json'
-  }
-  conn.request("POST", "/api/auth/token", payload, headers)
-  res = conn.getresponse()
-  data = res.read()
 
-  json_data = json.loads(data.decode("utf-8"))
+    status, access_token = get_access_token()
 
-  access_token = json_data["data"]["access_token"]
-
-  payload = {
+    conn = http.client.HTTPSConnection("pos.aupos.com.au")
+    payload = {
     "inputFields": {
         "dateDateValue_fld0_op": "greaterThanEqualTo",
         "dateDateValue_fld0_grp": "g1",
@@ -339,29 +325,28 @@ def get_batch_shops_sales(start, end, shop_id_list):
     "orderBy": "",
     "page": 1,
     "size": 1000
-  }
+    }
 
-  payload_json = json.dumps(payload)
+    payload_json = json.dumps(payload)
 
-#   await update.message.reply_text(f'{payload_json}')
+    #   await update.message.reply_text(f'{payload_json}')
 
-  headers = {
+    headers = {
     'Content-Type': 'application/json',
     'userTenantId': 'gc',
     'Authorization': f'Bearer {access_token}',
     'Cookie': 'JSESSIONID=0A7608CA4C2FB965C0EFE3CEB7E149F8.jvm1; OFBiz.Visitor=826825'
-  }
-  conn.request("POST", "/api/services/sales-summary", payload_json, headers)
-  res = conn.getresponse()
-  data = res.read()
+    }
+    conn.request("POST", "/api/services/sales-summary", payload_json, headers)
+    res = conn.getresponse()
+    data = res.read()
 
-  json_data = json.loads(data.decode("utf-8"))
+    json_data = json.loads(data.decode("utf-8"))
+    status = json_data["status"]
+    sales = json_data["data"]["content"]
+    sales_df = pd.DataFrame(sales)
 
-  sales = json_data["data"]["content"]
-
-  sales_df = pd.DataFrame(sales)
-
-  return sales_df
+    return status, sales_df
 
 def get_access_token():
     conn = http.client.HTTPSConnection("pos.aupos.com.au")
