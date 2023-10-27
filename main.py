@@ -61,10 +61,11 @@ logger = logging.getLogger(__name__)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
-    await update.message.reply_html(
-        rf"Hi {user.mention_html()}!",
-        reply_markup=ForceReply(selective=True),
-    )
+    message = update.message
+    chat_id = update.message.chat_id
+    # upsert the user details into subscribes in telegram_db
+    await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
+    upsert_user_details(user, message)
 
 # async def username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 #     """Send the user's mobile number when the command /mobile is issued."""
@@ -151,36 +152,60 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
   
-
-     
     # TODO: add a context.job_queue.run_repeating
 
-
-
-
-# def net_sales() -> float:
-#     today= datetime.today().strftime('%Y-%m-%d')
-#     tomorrow = (datetime.today() + timedelta(days=1)).strftime('%Y-%m-%d')
-#     query = '''
-#         select *
-#         from daily_shop_sales
-#         where shop_id = 31 and docket_date >= '{start}' and docket_date < '{end}'
-#         '''.format(start=today, end = tomorrow)
-#     data = pd.read_sql(query, gong_cha_db)
-#     total_ex = 0 if data.empty else data['total_ex'].values[0]
-#     return total_ex
-
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = update.effective_message.chat_id
-    # await update.message.reply_text(f'chat_id: {chat_id}')
+    chat_id = update.message.chat_id
     store_id = get_user_store_id(chat_id)
     # await update.message.reply_text(f'Store ID: {store_id}')
-    shop_id, _ = get_store_details(store_id)
-    # await update.message.reply_text(f'shop_id ID: {shop_id}')
-    date = datetime.today()
-    total_ex = get_daily_shop_sales(date,shop_id)
-    await update.message.reply_text(f'Today\'s Sales incl GST: ${total_ex*1.1}')
+    if store_id:
+        shop_id, store_name = get_store_details(store_id)
 
+        start = datetime.today()
+        end = start + timedelta(days=1)
+        start_str = start.strftime("%Y-%m-%d")
+        end_str = end.strftime("%Y-%m-%d")
+        shop_id_list = get_enrolled_stores()['shop_id'].astype(int).to_list()
+        shop_id_list_str = [str(x) for x in shop_id_list]
+
+        shops_sales = get_batch_shops_sales(start_str, end_str, shop_id_list_str)
+        shops_sales.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
+        shops_sales['shop_id'] = shops_sales['shop_id'].astype(int)
+
+        stores = get_enrolled_stores()
+        stores['shop_id'] = stores['shop_id'].astype(int)
+
+        stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], shops_sales[['shop_id', 'sales']], on=['shop_id'], how = 'left')
+
+        sales = stores[stores['Store ID'] == store_id]['sales']
+        sales_val = sales.values[0]
+        await update.message.reply_text(f'{store_name} on {start_str}: ${sales_val} incl. GST')
+
+        # today = datetime.today()
+        # date_list = [today.date() - timedelta(days=x) for x in range(today.weekday())]
+        # # await update.message.reply_text(f'date_list size {len(date_list)}')
+
+        # for date in date_list:
+        #     sales = get_daily_shop_sales(date,shop_id)
+        #     target = get_daily_shop_target(date, store_id)
+        #     await update.message.reply_text(f'{date}\nSales incl GST: ${sales},\nTarget is: ${target}')
+
+    else:
+        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
+
+# async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+#     chat_id = update.effective_message.chat_id
+#     # await update.message.reply_text(f'chat_id: {chat_id}')
+#     store_id = get_user_store_id(chat_id)
+#     # await update.message.reply_text(f'Store ID: {store_id}')
+#     shop_id, _ = get_store_details(store_id)
+#     # await update.message.reply_text(f'shop_id ID: {shop_id}')
+#     date = datetime.today()
+#     total_ex = get_daily_shop_sales(date,shop_id)
+#     await update.message.reply_text(f'Today\'s Sales incl GST: ${total_ex*1.1}')
+
+
+# # used in /start # # 
 def upsert_user_details(user, message) -> None:
     upsert_query = '''
     INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
@@ -241,6 +266,98 @@ def get_daily_shop_target(date, store_id) -> float:
     target_df['Date'] = pd.to_datetime(target_df['Date'])
     target =  target_df[(target_df['Store ID']== store_id) & (target_df['Date']== pd.to_datetime(date))]
     return 0 if target.size == 0 else target['Amount'].values[0]
+
+
+
+
+
+
+
+
+def get_enrolled_store_ids() -> list:
+  sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
+  sheet_name = 'Access'
+  url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+  access_df = pd.read_csv(url)
+  store_id =  access_df['Store ID']
+  return [] if store_id.size == 0 else store_id.unique()
+
+
+def get_enrolled_stores() -> list:
+  store_ids = get_enrolled_store_ids()
+
+  sheet_id = '1ezyBlKquUhYnFwmIKTR4fghI59ZvGaKL35mKbcdeRy4'
+  sheet_name = 'Stores'
+  url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+  store_df = pd.read_csv(url)
+
+  store_df = store_df[(store_df['Store ID'].isin(store_ids))]
+  return store_df
+
+
+def get_shops_sales(start, end, shop_id_list):
+  conn = http.client.HTTPSConnection("pos.aupos.com.au")
+  payload = json.dumps({
+    "username": "gc-admin",
+    "password": "ofbiz"
+  })
+  headers = {
+    'userTenantId': 'gc',
+    'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+    'Content-Type': 'application/json'
+  }
+  conn.request("POST", "/api/auth/token", payload, headers)
+  res = conn.getresponse()
+  data = res.read()
+
+  json_data = json.loads(data.decode("utf-8"))
+
+  access_token = json_data["data"]["access_token"]
+
+  payload = {
+    "inputFields": {
+        "dateDateValue_fld0_op": "greaterThanEqualTo",
+        "dateDateValue_fld0_grp": "g1",
+        "dateDateValue_fld0_value": start,
+        "dateDateValue_fld1_op": "lessThan",
+        "dateDateValue_fld1_grp": "g1",
+        "dateDateValue_fld1_value": end,
+        "storeProductStoreId_fld0_op": "in",
+        "storeProductStoreId_fld0_grp": "g1",
+        "storeProductStoreId_fld0_value": shop_id_list  # Include the list of strings with double quotes
+    },
+    "orderBy": "",
+    "page": 1,
+    "size": 1000
+  }
+
+  payload_json = json.dumps(payload)
+
+  headers = {
+    'Content-Type': 'application/json',
+    'userTenantId': 'gc',
+    'Authorization': f'Bearer {access_token}',
+    'Cookie': 'JSESSIONID=0A7608CA4C2FB965C0EFE3CEB7E149F8.jvm1; OFBiz.Visitor=826825'
+  }
+  conn.request("POST", "/api/services/sales-summary", payload_json, headers)
+  res = conn.getresponse()
+  data = res.read()
+
+  json_data = json.loads(data.decode("utf-8"))
+
+  sales = json_data["data"]["content"]
+
+  sales_df = pd.DataFrame(sales)
+
+  return sales_df
+
+
+
+
+
+
+
+
 
 
 def main() -> None:
