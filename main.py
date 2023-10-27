@@ -337,6 +337,8 @@ def get_batch_shops_sales(start, end, shop_id_list):
 
   payload_json = json.dumps(payload)
 
+  await update.message.reply_text(f'{payload_json}')
+
   headers = {
     'Content-Type': 'application/json',
     'userTenantId': 'gc',
