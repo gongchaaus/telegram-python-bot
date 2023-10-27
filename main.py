@@ -179,20 +179,23 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         # await update.message.reply_text(f'{shop_id_list_str}')
 
         status, payload_json, data, sales_df = get_batch_sales_df(start_str, end_str, shop_id_list_str)
-        await update.message.reply_text(f'Status: {status}')
-        await update.message.reply_text(f'payload_json: {payload_json}')
-        await update.message.reply_text(f'data: {data}')
-        await update.message.reply_text(f'sales_df: {sales_df}')
-        sales_df.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
-        sales_df['shop_id'] = sales_df['shop_id'].astype(int)
+        # await update.message.reply_text(f'Status: {status}')
+        # await update.message.reply_text(f'payload_json: {payload_json}')
+        # await update.message.reply_text(f'data: {data}')
+        # await update.message.reply_text(f'sales_df: {sales_df}')
+        if not(sales_df.empty):
+            sales_df.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
+            sales_df['shop_id'] = sales_df['shop_id'].astype(int)
 
-        stores = get_enrolled_stores()
-        stores['shop_id'] = stores['shop_id'].astype(int)
-        stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], sales_df[['shop_id', 'sales']], on=['shop_id'], how = 'left')
+            stores = get_enrolled_stores()
+            stores['shop_id'] = stores['shop_id'].astype(int)
+            stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], sales_df[['shop_id', 'sales']], on=['shop_id'], how = 'left')
 
-        sales = stores[stores['Store ID'] == store_id]['sales']
-        sales_val = sales.values[0]
-        await update.message.reply_text(f'{store_name} on {start_str}: ${sales_val} incl. GST')
+            sales = stores[stores['Store ID'] == store_id]['sales']
+            sales_val = sales.values[0]
+            await update.message.reply_text(f'{store_name} on {start_str}: ${sales_val} incl. GST')
+        else:
+            await update.message.reply_text(f'{store_name} has no sales on {start_str} yet')
 
         # today = datetime.today()
         # date_list = [today.date() - timedelta(days=x) for x in range(today.weekday())]
