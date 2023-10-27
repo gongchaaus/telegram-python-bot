@@ -45,6 +45,10 @@ pymysql.install_as_MySQLdb()
 #Date & Time
 from datetime import datetime, timedelta
 
+#for making API calls
+import http.client
+import json
+
 
 gong_cha_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/gong_cha_db')
 telegram_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/telegram_db')
@@ -337,7 +341,7 @@ def get_batch_shops_sales(start, end, shop_id_list):
 
   payload_json = json.dumps(payload)
 
-  await update.message.reply_text(f'{payload_json}')
+#   await update.message.reply_text(f'{payload_json}')
 
   headers = {
     'Content-Type': 'application/json',
@@ -356,13 +360,6 @@ def get_batch_shops_sales(start, end, shop_id_list):
   sales_df = pd.DataFrame(sales)
 
   return sales_df
-
-
-
-
-
-
-
 
 
 
