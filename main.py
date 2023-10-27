@@ -68,7 +68,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
     chat_id = update.message.chat_id
     # upsert the user details into subscribes in telegram_db
-    await update.message.reply_text(f'Your chat id is: {chat_id}\nPlease share your chat id with your manager')
+    await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
     upsert_user_details(user, message)
 
 # async def username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -154,7 +154,7 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f'{date}\nSales incl GST: ${sales},\nTarget is: ${target}')
 
     else:
-        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager for access')
+        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
   
     # TODO: add a context.job_queue.run_repeating
 
@@ -198,7 +198,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         #     await update.message.reply_text(f'{date}\nSales incl GST: ${sales},\nTarget is: ${target}')
 
     else:
-        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager for access')
+        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
 
 # async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 #     chat_id = update.effective_message.chat_id
