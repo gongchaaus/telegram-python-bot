@@ -299,7 +299,7 @@ def get_enrolled_stores() -> list:
   return store_df
 
 
-def get_shops_sales(start, end, shop_id_list):
+def get_batch_shops_sales(start, end, shop_id_list):
   conn = http.client.HTTPSConnection("pos.aupos.com.au")
   payload = json.dumps({
     "username": "gc-admin",
