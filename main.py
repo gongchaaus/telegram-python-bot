@@ -402,6 +402,7 @@ def main() -> None:
     application.add_handler(CommandHandler("unset", unset))
     application.add_handler(CommandHandler("subscribe", subscribe))
     application.add_handler(CommandHandler("sales", sales))
+    application.add_handler(CommandHandler("token", token))
 
     job_queue = application.job_queue
 
