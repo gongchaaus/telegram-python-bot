@@ -314,7 +314,7 @@ def get_batch_sales_df(start, end, shop_id_list):
 
     status, access_token = get_access_token()
 
-    conn = http.client.HTTPSConnection("pos.aupos.com.au")
+    conn = http.client.HTTPSConnection("api.aupos.com.au")
     payload = {
     "inputFields": {
         "dateDateValue_fld0_op": "greaterThanEqualTo",
@@ -352,7 +352,7 @@ def get_batch_sales_df(start, end, shop_id_list):
     return status, payload_json, data, sales_df
 
 def get_access_token():
-    conn = http.client.HTTPSConnection("pos.aupos.com.au")
+    conn = http.client.HTTPSConnection("api.aupos.com.au")
     payload = json.dumps({
     "username": "gc-admin",
     "password": "ofbiz"
