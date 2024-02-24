@@ -79,14 +79,35 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # upsert the user details into subscribes in telegram_db
     await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
     # query = upsert_user_details(user, message)
-    await update.message.reply_text(f'{message.chat_id}')
-    await update.message.reply_text(f'{user.id}')
-    await update.message.reply_text(f'{user.username}')
-    await update.message.reply_text(f'{user.first_name}')
-    await update.message.reply_text(f'{user.last_name}')
-    await update.message.reply_text(f'{user.language_code}')
-    await update.message.reply_text(f'{user.is_premium}')
-    await update.message.reply_text(f'{user.added_to_attachment_menu}')
+    # await update.message.reply_text(f'{message.chat_id}')
+    # await update.message.reply_text(f'{user.id}')
+    # await update.message.reply_text(f'{user.username}')
+    # await update.message.reply_text(f'{user.first_name}')
+    # await update.message.reply_text(f'{user.last_name}')
+    # await update.message.reply_text(f'{user.language_code}')
+    # await update.message.reply_text(f'{user.is_premium}')
+    # await update.message.reply_text(f'{user.added_to_attachment_menu}')
+    upsert_query = '''
+    INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
+    VALUES ({chat_id}, {user_id}, '{username}', '{first_name}', '{last_name}', '{language_code}', {is_premium}, {added_to_attachment_menu})
+    ON DUPLICATE KEY UPDATE
+        user_id = {user_id},
+        username = '{username}',
+        first_name = '{first_name}',
+        last_name = '{last_name}',
+        language_code = '{language_code}',
+        is_premium = {is_premium},
+        added_to_attachment_menu = {added_to_attachment_menu};
+    '''.format(chat_id = message.chat_id, 
+                user_id = user.id, 
+                username = user.username if user.username else '', 
+                first_name = user.first_name, 
+                last_name = user.last_name if user.last_name else '',
+                language_code = user.language_code if user.language_code else '',
+                is_premium = True if user.is_premium else False,
+                added_to_attachment_menu = True if user.added_to_attachment_menu else False
+                )
+    await update.message.reply_text(f'{upsert_query}')
 
 
 # # used in /start # # 
