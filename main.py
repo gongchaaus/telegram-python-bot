@@ -66,6 +66,18 @@ mysql_database = 'gong_cha_redcat_db'
 mysql_connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
 mysql_engine = create_engine(mysql_connection_string)
 
+telegram_host = '34.116.84.145'
+telegram_port = '3306'
+telegram_user = 'python_telegram_bot'
+telegram_password = 'HelloGongCha2012'
+telegram_database = 'telegram_db'
+
+# Engine for MySQL
+telegram_connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
+telegram_engine = create_engine(mysql_connection_string)
+
+
+
 import pymysql
 pymysql.install_as_MySQLdb()
 
