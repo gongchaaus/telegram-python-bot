@@ -80,6 +80,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     upsert_query = upsert_user_details(user, message)
     await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
 
+async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a message when the command /start is issued."""
+    user = update.effective_user
+    message = update.message
+    chat_id = update.message.chat_id
+    # upsert the user details into subscribes in telegram_db
+    upsert_query = upsert_user_details(user, message)
+    await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
+
 # # used in /start # # 
 def upsert_user_details(user, message) -> None:
     upsert_query = '''
@@ -130,6 +139,7 @@ def main() -> None:
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("sales", sales))
 
 
     # Run the bot until the user presses Ctrl-C
