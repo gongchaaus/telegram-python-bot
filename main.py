@@ -114,7 +114,8 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         recid_plo, store_name = get_store_details(store_id)
         # await update.message.reply_text(f'recid_pol: {recid_pol}')
         # await update.message.reply_text(f'store_name: {store_name}')
-        today = pd.to_datetime('today')
+        # today = pd.to_datetime('today')
+        today = pd.to_datetime('2024-02-14')
         await update.message.reply_text(f'today: {today}')
         today_str = today.strftime("%Y-%m-%d")
 
