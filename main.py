@@ -124,8 +124,8 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         # if(sales_val>0):
         #     await update.message.reply_text(f'{store_name} on {today_str}: ${sales_val} incl. GST')
 
-        else:
-            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+        # else:
+        #     await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
 
     else:
         await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
