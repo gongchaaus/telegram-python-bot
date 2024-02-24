@@ -77,7 +77,6 @@ telegram_connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_passwo
 telegram_engine = create_engine(mysql_connection_string)
 
 
-
 import pymysql
 pymysql.install_as_MySQLdb()
 
@@ -302,16 +301,21 @@ def get_store_details(store_id):
     store_name = store_df[store_df['Store ID']== store_id]['Store Name']
     return shop_id.values[0], store_name.values[0]
 
-def get_daily_shop_sales(date, shop_id) -> float:
+def get_daily_shop_sales(date, recid_pol) -> float:
     start_datestr = date.strftime("%Y-%m-%d")
     end_datestr = (date+timedelta(days=1)).strftime("%Y-%m-%d")
+    # query = '''
+    # SELECT *
+    # FROM daily_shop_sales
+    # WHERE shop_id = {recid_pol} and docket_date >='{start_datestr}' and docket_date <'{end_datestr}'
+    # '''.format(recid_pol = recid_pol,start_datestr = start_datestr, end_datestr = end_datestr)
     query = '''
-    SELECT *
-    FROM daily_shop_sales
-    WHERE shop_id = {shop_id} and docket_date >='{start_datestr}' and docket_date <'{end_datestr}'
-    '''.format(shop_id = shop_id,start_datestr = start_datestr, end_datestr = end_datestr)
-    daily_sales_df = pd.read_sql(query, gong_cha_db)
-    return 0 if daily_sales_df.size == 0 else daily_sales_df['total_ex'].values[0]*1.1
+SELECT SUM(subtotal) as SUM
+FROM  tbl_salesheaders tsh
+WHERE txndate = '2024-02-24' AND recid_plo = 180
+'''
+    daily_sales_df = pd.read_sql(query, mariadb_engine)
+    return 0 if daily_sales_df.size == 0 else daily_sales_df.loc[0]['SUM']
 
 def get_daily_shop_target(date, store_id) -> float:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
