@@ -108,12 +108,35 @@ def upsert_user_details(user, message) -> None:
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     store_id = get_user_store_id(chat_id)
-    await update.message.reply_text(f'Store ID: {store_id}')
+    # await update.message.reply_text(f'Store ID: {store_id}')
 
     if store_id:
         recid_pol, store_name = get_store_details(store_id)
         await update.message.reply_text(f'recid_pol: {recid_pol}')
         await update.message.reply_text(f'store_name: {store_name}')
+        today = pd.to_datetime('today')
+        await update.message.reply_text(f'today: {today}')
+
+        # sales_val = get_daily_shop_sales(today, store_id)
+
+        today_str = today.strftime("%Y-%m-%d")
+
+        # if(sales_val>0):
+        #     await update.message.reply_text(f'{store_name} on {today_str}: ${sales_val} incl. GST')
+
+        else:
+            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+
+    else:
+        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
+
+
+
+
+
+
+
+
 def get_user_store_id(chat_id) -> str:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
     sheet_name = 'Access'
