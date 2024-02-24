@@ -80,16 +80,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     upsert_query = upsert_user_details(user, message)
     await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
 
-async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /start is issued."""
-    user = update.effective_user
-    message = update.message
-    chat_id = update.message.chat_id
-    # upsert the user details into subscribes in telegram_db
-    upsert_query = upsert_user_details(user, message)
-    await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
-
-# # used in /start # # 
 def upsert_user_details(user, message) -> None:
     upsert_query = '''
     INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
@@ -113,6 +103,36 @@ def upsert_user_details(user, message) -> None:
                 )
     execute_stmt(upsert_query, telegram_engine)
     return upsert_query
+
+
+async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = update.message.chat_id
+    store_id = get_user_store_id(chat_id)
+    await update.message.reply_text(f'Store ID: {store_id}')
+
+    if store_id:
+        recid_pol, store_name = get_store_details(store_id)
+        await update.message.reply_text(f'recid_pol: {recid_pol}')
+        await update.message.reply_text(f'store_name: {store_name}')
+def get_user_store_id(chat_id) -> str:
+    sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
+    sheet_name = 'Access'
+    url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+    access_df = pd.read_csv(url)   
+    store_id =  access_df[(access_df['chat_id']== chat_id) & (access_df['Status']== 'Active')]['Store ID']
+    return '' if store_id.size == 0 else store_id.values[0]
+
+def get_store_details(store_id):
+    sheet_id = '1peA8effpeSTk3duIjxF46V-PrDD8tv3fubTCDEpD940'
+    sheet_name = 'Stores'
+    url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+    store_df = pd.read_csv(url)
+    recid_plo = store_df[store_df['Store ID']== store_id]['recid_plo']
+    store_name = store_df[store_df['Store ID']== store_id]['Store Name']
+    return recid_plo.values[0], store_name.values[0]
+
+
+
 
 def execute_stmt(stmt, engine):
     try:
