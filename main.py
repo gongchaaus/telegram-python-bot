@@ -68,8 +68,8 @@ telegram_password = 'HelloGongCha2012'
 telegram_database = 'telegram_db'
 
 # Engine for MySQL
-telegram_connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
-telegram_engine = create_engine(mysql_connection_string)
+telegram_connection_string = f"mysql+mysqlconnector://{telegram_user}:{telegram_password}@{telegram_host}:{telegram_port}/{telegram_database}"
+telegram_engine = create_engine(telegram_connection_string)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
