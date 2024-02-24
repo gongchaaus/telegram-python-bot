@@ -77,8 +77,8 @@ telegram_connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_passwo
 telegram_engine = create_engine(mysql_connection_string)
 
 
-import pymysql
-pymysql.install_as_MySQLdb()
+# import pymysql
+# pymysql.install_as_MySQLdb()
 
 #Date & Time
 from datetime import datetime, timedelta
@@ -88,7 +88,7 @@ import http.client
 import json
 
 
-gong_cha_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/gong_cha_db')
+# gong_cha_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/gong_cha_db')
 telegram_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/telegram_db')
 
 # Enable logging
@@ -203,9 +203,11 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     store_id = get_user_store_id(chat_id)
     await update.message.reply_text(f'Store ID: {store_id}')
-    # if store_id:
-    #     shop_id, store_name = get_store_details(store_id)
 
+    if store_id:
+        recid_pol, store_name = get_store_details(store_id)
+        await update.message.reply_text(f'recid_pol: {recid_pol}')
+        await update.message.reply_text(f'store_name: {store_name}')
     #     today = datetime.today()
 
     #     sales_val = get_daily_shop_sales(today, store_id)
@@ -268,13 +270,13 @@ def get_user_store_id(chat_id) -> str:
     return '' if store_id.size == 0 else store_id.values[0]
 
 def get_store_details(store_id):
-    sheet_id = '1ezyBlKquUhYnFwmIKTR4fghI59ZvGaKL35mKbcdeRy4'
+    sheet_id = '1peA8effpeSTk3duIjxF46V-PrDD8tv3fubTCDEpD940'
     sheet_name = 'Stores'
     url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
     store_df = pd.read_csv(url)
-    shop_id = store_df[store_df['Store ID']== store_id]['shop_id']
+    recid_plo = store_df[store_df['Store ID']== store_id]['recid_plo']
     store_name = store_df[store_df['Store ID']== store_id]['Store Name']
-    return shop_id.values[0], store_name.values[0]
+    return recid_plo.values[0], store_name.values[0]
 
 def get_daily_shop_sales(date, recid_pol) -> float:
     start_datestr = date.strftime("%Y-%m-%d")
