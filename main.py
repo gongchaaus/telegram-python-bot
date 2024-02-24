@@ -117,8 +117,8 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         today = pd.to_datetime('today')
         await update.message.reply_text(f'today: {today}')
 
-        sales_val = get_store_sales(today, recid_pol)
-        await update.message.reply_text(f'sales_val: {sales_val}')
+        # sales_val = get_store_sales(today, recid_pol)
+        # await update.message.reply_text(f'sales_val: {sales_val}')
         today_str = today.strftime("%Y-%m-%d")
 
         # if(sales_val>0):
