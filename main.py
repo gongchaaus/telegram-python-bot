@@ -206,34 +206,39 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if store_id:
         shop_id, store_name = get_store_details(store_id)
 
-        start = datetime.today()
-        end = start + timedelta(days=1)
-        start_str = start.strftime("%Y-%m-%d")
-        end_str = end.strftime("%Y-%m-%d")
-        shop_id_list = get_enrolled_stores()['shop_id'].astype(int).to_list()
-        shop_id_list_str = [str(x) for x in shop_id_list]
-        # await update.message.reply_text(f'{start_str}')
-        # await update.message.reply_text(f'{end_str}')
-        # await update.message.reply_text(f'{shop_id_list_str}')
+        today = datetime.today()
 
-        status, payload_json, data, sales_df = get_batch_sales_df(start_str, end_str, shop_id_list_str)
-        # await update.message.reply_text(f'Status: {status}')
-        # await update.message.reply_text(f'payload_json: {payload_json}')
-        # await update.message.reply_text(f'data: {data}')
-        # await update.message.reply_text(f'sales_df: {sales_df}')
-        if not(sales_df.empty):
-            sales_df.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
-            sales_df['shop_id'] = sales_df['shop_id'].astype(int)
+        sales_val = get_daily_shop_sales(today, store_id)
 
-            stores = get_enrolled_stores()
-            stores['shop_id'] = stores['shop_id'].astype(int)
-            stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], sales_df[['shop_id', 'sales']], on=['shop_id'], how = 'left')
+        # end = start + timedelta(days=1)
+        today_str = today.strftime("%Y-%m-%d")
 
-            sales = stores[stores['Store ID'] == store_id]['sales']
-            sales_val = sales.values[0]
-            await update.message.reply_text(f'{store_name} on {start_str}: ${sales_val} incl. GST')
+        if(sales_val>0):
+        # end_str = end.strftime("%Y-%m-%d")
+        # shop_id_list = get_enrolled_stores()['shop_id'].astype(int).to_list()
+        # shop_id_list_str = [str(x) for x in shop_id_list]
+        # # await update.message.reply_text(f'{start_str}')
+        # # await update.message.reply_text(f'{end_str}')
+        # # await update.message.reply_text(f'{shop_id_list_str}')
+
+        # status, payload_json, data, sales_df = get_batch_sales_df(start_str, end_str, shop_id_list_str)
+        # # await update.message.reply_text(f'Status: {status}')
+        # # await update.message.reply_text(f'payload_json: {payload_json}')
+        # # await update.message.reply_text(f'data: {data}')
+        # # await update.message.reply_text(f'sales_df: {sales_df}')
+        # if not(sales_df.empty):
+        #     sales_df.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
+        #     sales_df['shop_id'] = sales_df['shop_id'].astype(int)
+
+        #     stores = get_enrolled_stores()
+        #     stores['shop_id'] = stores['shop_id'].astype(int)
+        #     stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], sales_df[['shop_id', 'sales']], on=['shop_id'], how = 'left')
+
+        #     sales = stores[stores['Store ID'] == store_id]['sales']
+        #     sales_val = sales.values[0]
+            await update.message.reply_text(f'{store_name} on {today_str}: ${sales_val} incl. GST')
         else:
-            await update.message.reply_text(f'{store_name} has no sales on {start_str} yet')
+            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
 
         # today = datetime.today()
         # date_list = [today.date() - timedelta(days=x) for x in range(today.weekday())]
@@ -303,7 +308,7 @@ def get_store_details(store_id):
 
 def get_daily_shop_sales(date, recid_pol) -> float:
     start_datestr = date.strftime("%Y-%m-%d")
-    end_datestr = (date+timedelta(days=1)).strftime("%Y-%m-%d")
+    # end_datestr = (date+timedelta(days=1)).strftime("%Y-%m-%d")
     # query = '''
     # SELECT *
     # FROM daily_shop_sales
@@ -314,8 +319,8 @@ SELECT SUM(subtotal) as SUM
 FROM  tbl_salesheaders tsh
 WHERE txndate = '2024-02-24' AND recid_plo = 180
 '''
-    daily_sales_df = pd.read_sql(query, mariadb_engine)
-    return 0 if daily_sales_df.size == 0 else daily_sales_df.loc[0]['SUM']
+    today_sales_df = pd.read_sql(query, mariadb_engine)
+    return 0 if today_sales_df.size == 0 else today_sales_df.loc[0]['SUM']
 
 def get_daily_shop_target(date, store_id) -> float:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
