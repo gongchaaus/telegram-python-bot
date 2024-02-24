@@ -77,7 +77,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
     chat_id = update.message.chat_id
     # upsert the user details into subscribes in telegram_db
-    upsert_query = upsert_user_details(user, message)
+    upsert_user_details(user, message)
+    upsert_query = '''
+    INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
+    VALUES ({chat_id}, {user_id}, '{username}', '{first_name}', '{last_name}', '{language_code}', {is_premium}, {added_to_attachment_menu})
+    ON DUPLICATE KEY UPDATE
+        user_id = {user_id},
+        username = '{username}',
+        first_name = '{first_name}',
+        last_name = '{last_name}',
+        language_code = '{language_code}',
+        is_premium = {is_premium},
+        added_to_attachment_menu = {added_to_attachment_menu};
+    '''.format(chat_id = message.chat_id, 
+                user_id = user.id, 
+                username = user.username if user.username else '', 
+                first_name = user.first_name, 
+                last_name = user.last_name if user.last_name else '',
+                language_code = user.language_code if user.language_code else '',
+                is_premium = True if user.is_premium else False,
+                added_to_attachment_menu = True if user.added_to_attachment_menu else False
+                )
     query = '''
 INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
     VALUES (6282871705, 6282871705, '', 'Eddy', 'Xu', 'en', False, False)
