@@ -77,7 +77,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
     chat_id = update.message.chat_id
     # upsert the user details into subscribes in telegram_db
-    upsert_user_details(user, message)
+    # upsert_user_details(user, message)
+    query = '''
+INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
+    VALUES (6282871705, 6282871705, '', 'Eddy', 'Xu', 'en', False, False)
+    ON DUPLICATE KEY UPDATE
+        user_id = 6282871705,
+        username = '',
+        first_name = 'Eddy',
+        last_name = 'Xu',
+        language_code = 'en',
+        is_premium = False,
+        added_to_attachment_menu = False;
+        '''
+    execute_stmt(query, telegram_engine)
     await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
 
 
