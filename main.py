@@ -202,55 +202,25 @@ async def token(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     store_id = get_user_store_id(chat_id)
-    # await update.message.reply_text(f'Store ID: {store_id}')
-    if store_id:
-        shop_id, store_name = get_store_details(store_id)
+    await update.message.reply_text(f'Store ID: {store_id}')
+    # if store_id:
+    #     shop_id, store_name = get_store_details(store_id)
 
-        today = datetime.today()
+    #     today = datetime.today()
 
-        sales_val = get_daily_shop_sales(today, store_id)
+    #     sales_val = get_daily_shop_sales(today, store_id)
 
-        # end = start + timedelta(days=1)
-        today_str = today.strftime("%Y-%m-%d")
+    #     # end = start + timedelta(days=1)
+    #     today_str = today.strftime("%Y-%m-%d")
 
-        if(sales_val>0):
-        # end_str = end.strftime("%Y-%m-%d")
-        # shop_id_list = get_enrolled_stores()['shop_id'].astype(int).to_list()
-        # shop_id_list_str = [str(x) for x in shop_id_list]
-        # # await update.message.reply_text(f'{start_str}')
-        # # await update.message.reply_text(f'{end_str}')
-        # # await update.message.reply_text(f'{shop_id_list_str}')
+    #     if(sales_val>0):
 
-        # status, payload_json, data, sales_df = get_batch_sales_df(start_str, end_str, shop_id_list_str)
-        # # await update.message.reply_text(f'Status: {status}')
-        # # await update.message.reply_text(f'payload_json: {payload_json}')
-        # # await update.message.reply_text(f'data: {data}')
-        # # await update.message.reply_text(f'sales_df: {sales_df}')
-        # if not(sales_df.empty):
-        #     sales_df.rename(columns={'storeProductStoreId': 'shop_id', 'grandTotal':'sales'}, inplace=True)
-        #     sales_df['shop_id'] = sales_df['shop_id'].astype(int)
+    #         await update.message.reply_text(f'{store_name} on {today_str}: ${sales_val} incl. GST')
+    #     else:
+    #         await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
 
-        #     stores = get_enrolled_stores()
-        #     stores['shop_id'] = stores['shop_id'].astype(int)
-        #     stores = pd.merge(stores[['Store ID', 'Store Name', 'shop_id']], sales_df[['shop_id', 'sales']], on=['shop_id'], how = 'left')
-
-        #     sales = stores[stores['Store ID'] == store_id]['sales']
-        #     sales_val = sales.values[0]
-            await update.message.reply_text(f'{store_name} on {today_str}: ${sales_val} incl. GST')
-        else:
-            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
-
-        # today = datetime.today()
-        # date_list = [today.date() - timedelta(days=x) for x in range(today.weekday())]
-        # # await update.message.reply_text(f'date_list size {len(date_list)}')
-
-        # for date in date_list:
-        #     sales = get_daily_shop_sales(date,shop_id)
-        #     target = get_daily_shop_target(date, store_id)
-        #     await update.message.reply_text(f'{date}\nSales incl GST: ${sales},\nTarget is: ${target}')
-
-    else:
-        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
+    # else:
+    #     await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
 
 # async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 #     chat_id = update.effective_message.chat_id
