@@ -103,8 +103,8 @@ async def upsert_user_details(user, message) -> None:
                 is_premium = True if user.is_premium else False,
                 added_to_attachment_menu = True if user.added_to_attachment_menu else False
                 )
-    with telegram_engine.connect() as con:
-        con.execute(upsert_query)
+    # with telegram_engine.connect() as con:
+    #     con.execute(upsert_query)
     return upsert_query
 
 
