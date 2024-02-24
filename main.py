@@ -204,10 +204,13 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     store_id = get_user_store_id(chat_id)
     await update.message.reply_text(f'Store ID: {store_id}')
 
-    if store_id:
-        recid_pol, store_name = get_store_details(store_id)
-        await update.message.reply_text(f'recid_pol: {recid_pol}')
-        await update.message.reply_text(f'store_name: {store_name}')
+    # if store_id:
+    #     recid_pol, store_name = get_store_details(store_id)
+    #     await update.message.reply_text(f'recid_pol: {recid_pol}')
+    #     await update.message.reply_text(f'store_name: {store_name}')
+
+
+    
     #     today = datetime.today()
 
     #     sales_val = get_daily_shop_sales(today, store_id)
