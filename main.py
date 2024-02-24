@@ -105,6 +105,7 @@ def upsert_user_details(user, message) -> None:
                 )
     with telegram_engine.connect() as con:
         con.execute(upsert_query)
+    print(upsert_query)
 
 
 
