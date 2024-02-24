@@ -111,15 +111,24 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # await update.message.reply_text(f'Store ID: {store_id}')
 
     if store_id:
-        recid_pol, store_name = get_store_details(store_id)
+        recid_plo, store_name = get_store_details(store_id)
         # await update.message.reply_text(f'recid_pol: {recid_pol}')
         # await update.message.reply_text(f'store_name: {store_name}')
         today = pd.to_datetime('today')
         await update.message.reply_text(f'today: {today}')
-
-        # sales_val = get_store_sales(today, recid_pol)
-        # await update.message.reply_text(f'sales_val: {sales_val}')
         today_str = today.strftime("%Y-%m-%d")
+
+        query = '''
+SELECT SUM(subtotal) as SUM
+FROM  tbl_salesheaders tsh
+WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
+'''.format(recid_plo = recid_plo,date_str = today_str)
+        
+        await update.message.reply_text(f'query: {query}')
+
+        # sales_val = get_store_sales(today, recid_plo)
+        # await update.message.reply_text(f'sales_val: {sales_val}')
+        
 
         # if(sales_val>0):
         #     await update.message.reply_text(f'{store_name} on {today_str}: ${sales_val} incl. GST')
