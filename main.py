@@ -39,8 +39,44 @@ import numpy as np
 
 #MySql Setup
 from sqlalchemy import create_engine
-import pymysql
-pymysql.install_as_MySQLdb()
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
+import mysql.connector
+
+# Get database credentials from environment variables
+mariadb_host = 'rdb-mariadb-gongcha-prod-read-01.cp9r0gu11n6n.ap-southeast-2.rds.amazonaws.com'
+mariadb_port = '3306'
+mariadb_user = 'GongChaAUData'
+mariadb_password = 'Pamxf&7HmPCh9D'
+mariadb_database = 'pxprodgongchaau'
+
+# Engine for MariaDB
+mariadb_connection_string = f"mysql+mysqlconnector://{mariadb_user}:{mariadb_password}@{mariadb_host}:{mariadb_port}/{mariadb_database}"
+mariadb_engine = create_engine(mariadb_connection_string)
+
+
+mysql_host = '34.116.84.145'
+mysql_port = '3306'
+mysql_user = 'gong-cha'
+mysql_password = 'HelloGongCha2012'
+mysql_database = 'gong_cha_redcat_db'
+
+# Engine for MySQL
+mysql_connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
+mysql_engine = create_engine(mysql_connection_string)
+
+
+
+telegram_host = '34.116.84.145'
+telegram_port = '3306'
+telegram_user = 'python_telegram_bot'
+telegram_password = 'HelloGongCha2012'
+telegram_database = 'telegram_db'
+
+# Engine for MySQL
+telegram_connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
+telegram_engine = create_engine(mysql_connection_string)
 
 #Date & Time
 from datetime import datetime, timedelta
@@ -48,10 +84,6 @@ from datetime import datetime, timedelta
 #for making API calls
 import http.client
 import json
-
-
-gong_cha_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/gong_cha_db')
-telegram_db = create_engine('mysql://python_telegram_bot:HelloGongCha2012@34.116.84.145:3306/telegram_db')
 
 # Enable logging
 logging.basicConfig(
