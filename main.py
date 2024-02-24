@@ -114,8 +114,8 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         recid_plo, store_name = get_store_details(store_id)
         # await update.message.reply_text(f'recid_pol: {recid_pol}')
         # await update.message.reply_text(f'store_name: {store_name}')
-        # today = pd.to_datetime('today')
-        today = pd.to_datetime('2024-02-14')
+        today = pd.to_datetime('today')
+        # today = pd.to_datetime('2024-02-14')
         await update.message.reply_text(f'today: {today}')
         today_str = today.strftime("%Y-%m-%d")
 
@@ -129,8 +129,9 @@ WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
 
         # today_sales_df = pd.read_sql(query, mariadb_engine)
         today_sales_df = pd.read_sql(query, mysql_engine)
-        await update.message.reply_text(f'today_sales_df: {today_sales_df}')
         
+        await update.message.reply_text(f'today_sales_df: {today_sales_df}')
+
         # sales_val = get_store_sales(today, recid_plo)
         # await update.message.reply_text(f'sales_val: {sales_val}')
         
