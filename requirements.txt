@@ -1,5 +1,5 @@
 httpx ~= 0.24.1
 python-telegram-bot[job-queue] == 20.3
-sqlalchemy<2.0
-PyMySQL
-pandas
+pandas==2.2.0
+sqlalchemy==2.0.25
+mysql-connector-python==8.3.0
