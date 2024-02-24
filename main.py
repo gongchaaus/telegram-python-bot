@@ -79,8 +79,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # upsert the user details into subscribes in telegram_db
     await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
     # query = upsert_user_details(user, message)
-    await update.message.reply_text(f'{user}')
-    await update.message.reply_text(f'{message}')
+    await update.message.reply_text(f'{message.chat_id}')
+    await update.message.reply_text(f'{user.id}')
+    await update.message.reply_text(f'{user.username}')
+    await update.message.reply_text(f'{user.first_name}')
+    await update.message.reply_text(f'{user.last_name}')
+    await update.message.reply_text(f'{user.language_code}')
+    await update.message.reply_text(f'{user.is_premium}')
+    await update.message.reply_text(f'{user.added_to_attachment_menu}')
+
 
 # # used in /start # # 
 async def upsert_user_details(user, message) -> None:
