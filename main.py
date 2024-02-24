@@ -115,7 +115,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         # await update.message.reply_text(f'recid_pol: {recid_pol}')
         # await update.message.reply_text(f'store_name: {store_name}')
         today = pd.to_datetime('today')
-        # await update.message.reply_text(f'today: {today}')
+        await update.message.reply_text(f'today: {today}')
 
         sales_val = get_store_sales(today, recid_pol)
         await update.message.reply_text(f'sales_val: {sales_val}')
