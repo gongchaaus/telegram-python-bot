@@ -78,11 +78,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     # upsert the user details into subscribes in telegram_db
     await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
-    upsert_user_details(user, message)
-
+    query = upsert_user_details(user, message)
+    await update.message.reply_text(query)
 
 # # used in /start # # 
-def upsert_user_details(user, message) -> None:
+async def upsert_user_details(user, message) -> None:
     upsert_query = '''
     INSERT INTO subscribers (chat_id, user_id, username, first_name, last_name, language_code, is_premium, added_to_attachment_menu)
     VALUES ({chat_id}, {user_id}, '{username}', '{first_name}', '{last_name}', '{language_code}', {is_premium}, {added_to_attachment_menu})
@@ -105,7 +105,7 @@ def upsert_user_details(user, message) -> None:
                 )
     with telegram_engine.connect() as con:
         con.execute(upsert_query)
-    print(upsert_query)
+    return upsert_query
 
 
 
