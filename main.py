@@ -156,8 +156,9 @@ SELECT SUM(subtotal) as SUM
 FROM  tbl_salesheaders tsh
 WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
 '''.format(recid_plo = recid_plo,date_str = date_str)
-    today_sales_df = pd.read_sql(query, mariadb_engine)
-    return 0 if today_sales_df.empty else today_sales_df.loc[0]['SUM']
+    return query
+    # today_sales_df = pd.read_sql(query, mariadb_engine)
+    # return 0 if today_sales_df.empty else today_sales_df.loc[0]['SUM']
 
 
 
