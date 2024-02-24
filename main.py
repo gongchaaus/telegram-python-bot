@@ -107,18 +107,18 @@ def upsert_user_details(user, message) -> None:
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
-    store_id = get_user_store_id(chat_id)
+    store_id = check_user_store_access(chat_id)
     # await update.message.reply_text(f'Store ID: {store_id}')
 
     if store_id:
         recid_pol, store_name = get_store_details(store_id)
-        await update.message.reply_text(f'recid_pol: {recid_pol}')
-        await update.message.reply_text(f'store_name: {store_name}')
+        # await update.message.reply_text(f'recid_pol: {recid_pol}')
+        # await update.message.reply_text(f'store_name: {store_name}')
         today = pd.to_datetime('today')
-        await update.message.reply_text(f'today: {today}')
+        # await update.message.reply_text(f'today: {today}')
 
-        # sales_val = get_daily_shop_sales(today, store_id)
-
+        sales_val = get_store_sales(today, recid_pol)
+        await update.message.reply_text(f'sales_val: {sales_val}')
         today_str = today.strftime("%Y-%m-%d")
 
         # if(sales_val>0):
@@ -132,12 +132,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 
-
-
-
-
-
-def get_user_store_id(chat_id) -> str:
+def check_user_store_access(chat_id) -> str:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
     sheet_name = 'Access'
     url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
@@ -153,6 +148,17 @@ def get_store_details(store_id):
     recid_plo = store_df[store_df['Store ID']== store_id]['recid_plo']
     store_name = store_df[store_df['Store ID']== store_id]['Store Name']
     return recid_plo.values[0], store_name.values[0]
+
+def get_store_sales(date, recid_plo) -> float:
+    date_str = date.strftime("%Y-%m-%d")
+    query = '''
+SELECT SUM(subtotal) as SUM
+FROM  tbl_salesheaders tsh
+WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
+'''.format(recid_plo = recid_plo,date_str = date_str)
+    today_sales_df = pd.read_sql(query, mariadb_engine)
+    return 0 if today_sales_df.empty else today_sales_df.loc[0]['SUM']
+
 
 
 
