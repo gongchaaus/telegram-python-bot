@@ -78,8 +78,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     # upsert the user details into subscribes in telegram_db
     await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
-    query = upsert_user_details(user, message)
-    await update.message.reply_text(query)
+    # query = upsert_user_details(user, message)
+    await update.message.reply_text(f'{user}')
+    await update.message.reply_text(f'{message}')
 
 # # used in /start # # 
 async def upsert_user_details(user, message) -> None:
