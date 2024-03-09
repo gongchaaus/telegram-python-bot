@@ -107,47 +107,43 @@ def upsert_user_details(user, message) -> None:
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
-    store_id = check_user_store_access(chat_id)
-    # await update.message.reply_text(f'Store ID: {store_id}')
+    store_id = get_user_store_access(chat_id)
+    await update.message.reply_text(f'Store ID: {store_id}')
 
     if store_id:
         recid_plo, store_name = get_store_details(store_id)
-        # await update.message.reply_text(f'recid_pol: {recid_pol}')
-        # await update.message.reply_text(f'store_name: {store_name}')
+        await update.message.reply_text(f'recid_pol: {recid_plo}')
+        await update.message.reply_text(f'store_name: {store_name}')
         today = pd.to_datetime('today')
-        # today = pd.to_datetime('2024-02-14')
+
         await update.message.reply_text(f'today: {today}')
         today_str = today.strftime("%Y-%m-%d")
 
         query = '''
-SELECT SUM(subtotal) as SUM
+SELECT SUM(subtotal) as net_total
 FROM  tbl_salesheaders tsh
 WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
 '''.format(recid_plo = recid_plo,date_str = today_str)
         
         await update.message.reply_text(f'query: {query}')
 
-        # today_sales_df = pd.read_sql(query, mariadb_engine)
         today_sales_df = pd.read_sql(query, mariadb_engine)
         
         await update.message.reply_text(f'today_sales_df: {today_sales_df}')
 
-        # sales_val = get_store_sales(today, recid_plo)
-        # await update.message.reply_text(f'sales_val: {sales_val}')
-        
+        net_total = today_sales_df['net_total'].values(0)
 
-        # if(sales_val>0):
-        #     await update.message.reply_text(f'{store_name} on {today_str}: ${sales_val} incl. GST')
+        if(net_total>0):
+            await update.message.reply_text(f'{store_name} on {today_str}: ${net_total} incl. GST')
 
-        # else:
-        #     await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+        else:
+            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
 
     else:
         await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
 
 
-
-def check_user_store_access(chat_id) -> str:
+def get_user_store_access(chat_id) -> str:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
     sheet_name = 'Access'
     url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
