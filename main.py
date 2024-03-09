@@ -157,17 +157,14 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         if(gross_sales>0):
             today_str = today.strftime("%Y-%m-%d")
-            if verbose:
-                await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
+            await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
 
         else:
-            if verbose:
-                await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
 
     else:
-        if verbose:
-            await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
-
+        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
+        await update.message.reply_text(f'Your chat_id is: {chat_id}')
 
 def get_user_store_access(chat_id) -> str:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
