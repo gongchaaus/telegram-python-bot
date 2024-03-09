@@ -133,6 +133,8 @@ WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
 
         net_total = today_sales_df['net_total'].values(0)
 
+        await update.message.reply_text(f'net_total: {net_total}')
+
         if(net_total>0):
             await update.message.reply_text(f'{store_name} on {today_str}: ${net_total} incl. GST')
 
