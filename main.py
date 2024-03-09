@@ -106,8 +106,12 @@ def upsert_user_details(user, message) -> None:
 
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text(f'context.args: {context.args}')
+    
     chat_id = update.message.chat_id
     await update.message.reply_text(f'chat_id: {chat_id}')
+
+    
 
     store_id = get_user_store_access(chat_id)
     await update.message.reply_text(f'Store ID: {store_id}')
