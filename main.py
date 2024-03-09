@@ -128,7 +128,7 @@ WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
         await update.message.reply_text(f'query: {query}')
 
         # today_sales_df = pd.read_sql(query, mariadb_engine)
-        today_sales_df = pd.read_sql(query, mysql_engine)
+        today_sales_df = pd.read_sql(query, mariadb_engine)
         
         await update.message.reply_text(f'today_sales_df: {today_sales_df}')
 
