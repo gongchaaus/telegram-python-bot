@@ -122,7 +122,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         today_str = today.strftime("%Y-%m-%d")
 
         query = '''
-SELECT SUM(subtotal) as net_total
+SELECT SUM(subtotal) as sub_total
 FROM  tbl_salesheaders tsh
 WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
 '''.format(recid_plo = recid_plo,date_str = today_str)
@@ -131,11 +131,11 @@ WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
         today_sales_df = pd.read_sql(query, mariadb_engine)
         await update.message.reply_text(f'today_sales_df: {today_sales_df}')
 
-        net_total = today_sales_df['net_total'].values[0]
-        await update.message.reply_text(f'net_total: {net_total}')
+        gross_sales = today_sales_df['gross_sales'].values[0]
+        await update.message.reply_text(f'gross_sales: {gross_sales}')
 
-        if(net_total>0):
-            await update.message.reply_text(f'{store_name} on {today_str}: ${net_total} incl. GST')
+        if(gross_sales>0):
+            await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
 
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
@@ -164,13 +164,13 @@ def get_store_details(store_id):
 def get_store_sales(date, recid_plo) -> float:
     date_str = date.strftime("%Y-%m-%d")
     query = '''
-SELECT SUM(subtotal) as SUM
-FROM  tbl_salesheaders tsh
-WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
+SELECT sum(tsi.qty * tsi.price - tsi.gstamount) as 'net_sales', sum(tsi.qty * tsi.price) as 'gross_sales', 
+tsh.recid, tsh.recid_plo, tsh.txndate, tsh.txntime, tsh.subtotal, tsh.totaltips 
+FROM tbl_salesitems tsi
+JOIN tbl_salesheaders tsh on tsi.recid_mixh = tsh.recid
+WHERE tsi.itemdate = '{date_str}' AND tsh.recid_plo = {recid_plo}
 '''.format(recid_plo = recid_plo,date_str = date_str)
     return query
-    # today_sales_df = pd.read_sql(query, mariadb_engine)
-    # return 0 if today_sales_df.empty else today_sales_df.loc[0]['SUM']
 
 
 
