@@ -106,62 +106,67 @@ def upsert_user_details(user, message) -> None:
 
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(f'context.args: {context.args}')
-    await update.message.reply_text(f'len(context.args): {len(context.args)}')
+    
+    # Default verbose = False
+    verbose = False
 
-#     try:
-#     # args[0] should contain the time for the timer in seconds
-#     due = float(context.args[0])
-#     if due < 0:
-#         await update.effective_message.reply_text("Sorry we can not go back to future!")
-#         return
+    if(len(context.args) > 0):
+        await update.message.reply_text(f'context.args: {context.args}')
 
-#     job_removed = remove_job_if_exists(str(chat_id), context)
-#     context.job_queue.run_repeating(alarm, due, chat_id=chat_id, name=str(chat_id), data=due)
+        try:
+            # args[0] should contain the time for the timer in seconds
+            arg_0 = context.args[0]
+            if arg_0 == 'verbose':
+                verbose = True
 
-#     text = "Timer successfully set!"
-#     if job_removed:
-#         text += " Old one was removed."
-#     await update.effective_message.reply_text(text)
-
-# except (IndexError, ValueError):
-#     await update.effective_message.reply_text("Usage: /set <seconds>")
+        except (IndexError, ValueError):
+            await update.effective_message.reply_text("Usage: /sales <command>")
+            await update.effective_message.reply_text("Commands: /sales verbose")
     
     chat_id = update.message.chat_id
-    await update.message.reply_text(f'chat_id: {chat_id}')
+    if verbose:
+        await update.message.reply_text(f'chat_id: {chat_id}')
 
     
-
     store_id = get_user_store_access(chat_id)
-    await update.message.reply_text(f'Store ID: {store_id}')
+    if verbose:
+        await update.message.reply_text(f'Store ID: {store_id}')
 
     if store_id:
         recid_plo, store_name = get_store_details(store_id)
-        await update.message.reply_text(f'recid_pol: {recid_plo}')
-        await update.message.reply_text(f'store_name: {store_name}')
+        if verbose:
+            await update.message.reply_text(f'recid_pol: {recid_plo}')
+            await update.message.reply_text(f'store_name: {store_name}')
         
         today = pd.to_datetime('today')
-        await update.message.reply_text(f'today: {today}')
+        if verbose:
+            await update.message.reply_text(f'today: {today}')
 
 
         query = get_store_sales(today, recid_plo)
-        await update.message.reply_text(f'query: {query}')
+        if verbose:
+            await update.message.reply_text(f'query: {query}')
 
         today_sales_df = pd.read_sql(query, mariadb_engine)
-        await update.message.reply_text(f'today_sales_df: {today_sales_df}')
+        if verbose:
+            await update.message.reply_text(f'today_sales_df: {today_sales_df}')
 
         gross_sales = today_sales_df['gross_sales'].values[0]
-        await update.message.reply_text(f'gross_sales: {gross_sales}')
+        if verbose:
+            await update.message.reply_text(f'gross_sales: {gross_sales}')
 
         if(gross_sales>0):
             today_str = today.strftime("%Y-%m-%d")
-            await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
+            if verbose:
+                await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
 
         else:
-            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+            if verbose:
+                await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
 
     else:
-        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
+        if verbose:
+            await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
 
 
 def get_user_store_access(chat_id) -> str:
