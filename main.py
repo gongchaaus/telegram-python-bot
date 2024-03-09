@@ -121,11 +121,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f'today: {today}')
         today_str = today.strftime("%Y-%m-%d")
 
-        query = '''
-SELECT SUM(subtotal) as sub_total
-FROM  tbl_salesheaders tsh
-WHERE txndate = '{date_str}' AND recid_plo = {recid_plo}
-'''.format(recid_plo = recid_plo,date_str = today_str)
+        query = get_store_sales(today_str, recid_plo)
         await update.message.reply_text(f'query: {query}')
 
         today_sales_df = pd.read_sql(query, mariadb_engine)
