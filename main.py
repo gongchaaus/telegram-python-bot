@@ -161,8 +161,7 @@ def get_store_details(store_id):
 def get_store_sales(date, recid_plo) -> float:
     date_str = date.strftime("%Y-%m-%d")
     query = '''
-SELECT sum(tsi.qty * tsi.price - tsi.gstamount) as 'net_sales', sum(tsi.qty * tsi.price) as 'gross_sales', 
-tsh.recid, tsh.recid_plo, tsh.txndate, tsh.txntime, tsh.subtotal, tsh.totaltips 
+SELECT sum(tsi.qty * tsi.price - tsi.gstamount) as 'net_sales', sum(tsi.qty * tsi.price) as 'gross_sales'
 FROM tbl_salesitems tsi
 JOIN tbl_salesheaders tsh on tsi.recid_mixh = tsh.recid
 WHERE tsi.itemdate = '{date_str}' AND tsh.recid_plo = {recid_plo}
