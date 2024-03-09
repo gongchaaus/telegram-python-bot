@@ -119,9 +119,9 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         today = pd.to_datetime('today')
         await update.message.reply_text(f'today: {today}')
-        today_str = today.strftime("%Y-%m-%d")
+        # today_str = today.strftime("%Y-%m-%d")
 
-        query = get_store_sales(today_str, recid_plo)
+        query = get_store_sales(today, recid_plo)
         await update.message.reply_text(f'query: {query}')
 
         today_sales_df = pd.read_sql(query, mariadb_engine)
