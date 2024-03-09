@@ -119,7 +119,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         today = pd.to_datetime('today')
         await update.message.reply_text(f'today: {today}')
-        # today_str = today.strftime("%Y-%m-%d")
+
 
         query = get_store_sales(today, recid_plo)
         await update.message.reply_text(f'query: {query}')
@@ -131,6 +131,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f'gross_sales: {gross_sales}')
 
         if(gross_sales>0):
+            today_str = today.strftime("%Y-%m-%d")
             await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
 
         else:
