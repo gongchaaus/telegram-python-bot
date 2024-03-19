@@ -296,7 +296,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             if verbose:
                 await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
             
-            await update.message.reply_text(f'{store_name}s Gross Sales excl. on {today_str}: ${gross_bonus_sales} incl. GST')
+            await update.message.reply_text(f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
         
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
