@@ -270,7 +270,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
         
         try:
-            excluded_recid_plu_str = ','.join(excluded_recid_plu.tolist())
+            excluded_recid_plu_str = ','.join(excluded_recid_plu.astype(str).tolist())
             if verbose:
                 await update.message.reply_text(f'excluded_recid_plu_str: {excluded_recid_plu_str}')
         
