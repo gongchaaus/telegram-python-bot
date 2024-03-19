@@ -183,7 +183,7 @@ def get_store_details(store_id):
     store_name = store_df[store_df['Store ID']== store_id]['Store Name']
     return recid_plo.values[0], store_name.values[0]
 
-def get_store_sales(date, recid_plo) -> float:
+def get_store_sales_query(date, recid_plo) -> float:
     date_str = date.strftime("%Y-%m-%d")
     query = '''
 SELECT sum(tsi.qty * tsi.price - tsi.gstamount) as 'net_sales', sum(tsi.qty * tsi.price) as 'gross_sales'
@@ -192,6 +192,14 @@ JOIN tbl_salesheaders tsh on tsi.recid_mixh = tsh.recid
 WHERE tsi.itemdate = '{date_str}' AND tsh.recid_plo = {recid_plo}
 '''.format(recid_plo = recid_plo,date_str = date_str)
     return query
+
+def get_bonus_exclusion_list():
+    sheet_id = '1peA8effpeSTk3duIjxF46V-PrDD8tv3fubTCDEpD940'
+    sheet_name = 'bonus_exclusion'
+    url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+    exclusion_df = pd.read_csv(url)
+    excluded_recid_plu = exclusion_df['recid_plu']
+    return excluded_recid_plu
 
 def execute_stmt(stmt, engine):
     try:
@@ -245,7 +253,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f'today: {today}')
 
 
-        query = get_store_sales(today, recid_plo)
+        query = get_store_sales_query(today, recid_plo)
         if verbose:
             await update.message.reply_text(f'query: {query}')
 
@@ -257,6 +265,10 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if verbose:
             await update.message.reply_text(f'gross_sales: {gross_sales}')
 
+        excluded_recid_plu = get_bonus_exclusion_list()
+        if verbose:
+            await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
+
         if(gross_sales>0):
             today_str = today.strftime("%Y-%m-%d")
             await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
@@ -267,7 +279,6 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
         await update.message.reply_text(f'Your chat_id is: {chat_id}')
-
 
 
 def main() -> None:
