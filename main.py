@@ -182,7 +182,7 @@ def get_store_details(store_id):
     store_name = store_df[store_df['Store ID']== store_id]['Store Name']
     return recid_plo.values[0], store_name.values[0]
 
-def get_store_sales_query(date, recid_plo, excluded_recid_plu=None) -> float:
+def get_store_sales_query(date, recid_plo, exclusion_plu=None) -> float:
     date_str = date.strftime("%Y-%m-%d")
     query = '''
 SELECT sum(tsi.qty * tsi.price - tsi.gstamount) as 'net_sales', sum(tsi.qty * tsi.price) as 'gross_sales'
@@ -190,11 +190,10 @@ FROM tbl_salesitems tsi
 JOIN tbl_salesheaders tsh on tsi.recid_mixh = tsh.recid
 WHERE tsi.itemdate = '{date_str}' AND tsh.recid_plo = {recid_plo}'''.format(recid_plo = recid_plo,date_str = date_str)
     
-    if excluded_recid_plu != None:
-        excluded_recid_plu_str = ','.join(excluded_recid_plu.astype(str).tolist())
+    if exclusion_plu != None:
         additional_where = '''
   AND tsi.recid_plu not in ({exclusion_plu})
-'''.format(exclusion_plu = excluded_recid_plu_str)
+'''.format(exclusion_plu = exclusion_plu)
         query = query +additional_where
 
     return query
@@ -273,15 +272,19 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         if(gross_sales>0):
             today_str = today.strftime("%Y-%m-%d")
-            await update.message.reply_text(f'{store_name} Gross Sales on {today_str}: ${gross_sales} incl. GST')
+            await update.message.reply_text(f'{store_name}s Gross Sales on {today_str}: ${gross_sales} incl. GST')
 
             # # # Get Gross Sales for Bonus Calculation
             excluded_recid_plu = get_bonus_exclusion_list()
             excluded_recid_plu = excluded_recid_plu.drop_duplicates()
             if verbose:
                 await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
+
+            excluded_recid_plu_str = ','.join(excluded_recid_plu.astype(str).tolist())
+            if verbose:
+                await update.message.reply_text(f'excluded_recid_plu_str: {excluded_recid_plu_str}')
             
-            bonus_sales_query = get_store_sales_query(today, recid_plo, excluded_recid_plu)
+            bonus_sales_query = get_store_sales_query(today, recid_plo, excluded_recid_plu_str)
             if verbose:
                 await update.message.reply_text(f'bonus_sales_query: {bonus_sales_query}')
             
@@ -293,7 +296,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             if verbose:
                 await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
             
-            await update.message.reply_text(f'{store_name} Gross Sales excl. LTOs and Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
+            await update.message.reply_text(f'{store_name}s Gross Sales excl. on {today_str}: ${gross_bonus_sales} incl. GST')
         
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
