@@ -287,13 +287,13 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if verbose:
             await update.message.reply_text(f'excluded_recid_plu_str: {excluded_recid_plu_str}')
 
-        # try:
-        #     bonus_sales_query = get_store_sales_query(today, recid_plo, excluded_recid_plu_str)
-        #     if verbose:
-        #         await update.message.reply_text(f'bonus_sales_query: {bonus_sales_query}')
+        try:
+            bonus_sales_query = get_store_sales_query(today, recid_plo, excluded_recid_plu_str)
+            if verbose:
+                await update.message.reply_text(f'bonus_sales_query: {bonus_sales_query}')
         
-        # except Exception as e:
-        #     await update.message.reply_text(f'error: {e}')
+        except Exception as e:
+            await update.message.reply_text(f'error: {e}')
 
 
 
