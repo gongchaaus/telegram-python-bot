@@ -142,8 +142,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if verbose:
             await update.message.reply_text(f'today: {today}')
 
-
-        query = get_store_sales(today, recid_plo)
+        query = get_store_sales_query(today, recid_plo)
         if verbose:
             await update.message.reply_text(f'query: {query}')
 
@@ -270,11 +269,9 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
         
         excluded_recid_plu = get_bonus_exclusion_list()
+        exclusion_df = exclusion_df.drop_duplicates()
         if verbose:
             await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
-
-
-            
 
         try:
             excluded_recid_plu_str = ','.join(excluded_recid_plu.astype(str).tolist())
