@@ -269,9 +269,13 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if verbose:
             await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
         
-        excluded_recid_plu_str = ','.join(excluded_recid_plu.tolist())
-        if verbose:
-            await update.message.reply_text(f'excluded_recid_plu_str: {excluded_recid_plu_str}')
+        try:
+            excluded_recid_plu_str = ','.join(excluded_recid_plu.tolist())
+            if verbose:
+                await update.message.reply_text(f'excluded_recid_plu_str: {excluded_recid_plu_str}')
+        
+        except Exception as e:
+            await update.message.reply_text(f'error: {e}')
 
         if(gross_sales>0):
             today_str = today.strftime("%Y-%m-%d")
