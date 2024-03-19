@@ -268,6 +268,10 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             today_str = today.strftime("%Y-%m-%d")
             await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
         
+        else:
+            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+        
+        
         excluded_recid_plu = get_bonus_exclusion_list()
         excluded_recid_plu = excluded_recid_plu.drop_duplicates()
         if verbose:
@@ -281,8 +285,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         except Exception as e:
             await update.message.reply_text(f'error: {e}')
 
-        else:
-            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+
 
     else:
         await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
