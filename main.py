@@ -182,7 +182,7 @@ def get_store_details(store_id):
     store_name = store_df[store_df['Store ID']== store_id]['Store Name']
     return recid_plo.values[0], store_name.values[0]
 
-def get_store_sales_query(date, recid_plo, exclusion_plu) -> float:
+def get_store_sales_query(date, recid_plo, exclusion_plu=None) -> float:
     date_str = date.strftime("%Y-%m-%d")
     query = '''
 SELECT sum(tsi.qty * tsi.price - tsi.gstamount) as 'net_sales', sum(tsi.qty * tsi.price) as 'gross_sales'
