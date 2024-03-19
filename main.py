@@ -269,7 +269,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
         
         excluded_recid_plu = get_bonus_exclusion_list()
-        exclusion_df = exclusion_df.drop_duplicates()
+        excluded_recid_plu = excluded_recid_plu.drop_duplicates()
         if verbose:
             await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
 
