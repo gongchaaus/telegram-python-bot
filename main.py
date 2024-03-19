@@ -182,14 +182,20 @@ def get_store_details(store_id):
     store_name = store_df[store_df['Store ID']== store_id]['Store Name']
     return recid_plo.values[0], store_name.values[0]
 
-def get_store_sales_query(date, recid_plo) -> float:
+def get_store_sales_query(date, recid_plo, exclusion_plu) -> float:
     date_str = date.strftime("%Y-%m-%d")
     query = '''
 SELECT sum(tsi.qty * tsi.price - tsi.gstamount) as 'net_sales', sum(tsi.qty * tsi.price) as 'gross_sales'
 FROM tbl_salesitems tsi
 JOIN tbl_salesheaders tsh on tsi.recid_mixh = tsh.recid
-WHERE tsi.itemdate = '{date_str}' AND tsh.recid_plo = {recid_plo}
-'''.format(recid_plo = recid_plo,date_str = date_str)
+WHERE tsi.itemdate = '{date_str}' AND tsh.recid_plo = {recid_plo}'''.format(recid_plo = recid_plo,date_str = date_str)
+    
+    if exclusion_plu != None:
+        additional_where = '''
+  AND tsi.recid_plu not in ({exclusion_plu})
+'''.format(exclusion_plu = exclusion_plu)
+        query = query +additional_where
+
     return query
 
 def get_bonus_exclusion_list():
@@ -271,16 +277,18 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
         
-        
+
         excluded_recid_plu = get_bonus_exclusion_list()
         excluded_recid_plu = excluded_recid_plu.drop_duplicates()
         if verbose:
             await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
 
+        excluded_recid_plu_str = ','.join(excluded_recid_plu.astype(str).tolist())
+        if verbose:
+            await update.message.reply_text(f'excluded_recid_plu_str: {excluded_recid_plu_str}')
+
         try:
-            excluded_recid_plu_str = ','.join(excluded_recid_plu.astype(str).tolist())
-            if verbose:
-                await update.message.reply_text(f'excluded_recid_plu_str: {excluded_recid_plu_str}')
+
         
         except Exception as e:
             await update.message.reply_text(f'error: {e}')
