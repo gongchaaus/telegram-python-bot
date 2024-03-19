@@ -264,11 +264,18 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         gross_sales = today_sales_df['gross_sales'].values[0]
         if verbose:
             await update.message.reply_text(f'gross_sales: {gross_sales}')
-
+        
+        if(gross_sales>0):
+            today_str = today.strftime("%Y-%m-%d")
+            await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
+        
         excluded_recid_plu = get_bonus_exclusion_list()
         if verbose:
             await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
-        
+
+
+            
+
         try:
             excluded_recid_plu_str = ','.join(excluded_recid_plu.astype(str).tolist())
             if verbose:
@@ -276,10 +283,6 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         except Exception as e:
             await update.message.reply_text(f'error: {e}')
-
-        if(gross_sales>0):
-            today_str = today.strftime("%Y-%m-%d")
-            await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
 
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
