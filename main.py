@@ -273,7 +273,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         if(gross_sales>0):
             today_str = today.strftime("%Y-%m-%d")
-            await update.message.reply_text(f'{store_name}''s Gross Sales on {today_str}: ${gross_sales} incl. GST')
+            await update.message.reply_text(f'{store_name} Gross Sales on {today_str}: ${gross_sales} incl. GST')
 
             # # # Get Gross Sales for Bonus Calculation
             excluded_recid_plu = get_bonus_exclusion_list()
@@ -293,7 +293,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             if verbose:
                 await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
             
-            await update.message.reply_text(f'{store_name}''s Gross Sales excl. LTOs and Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
+            await update.message.reply_text(f'{store_name} Gross Sales excl. LTOs and Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
         
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
