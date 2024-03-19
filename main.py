@@ -291,6 +291,14 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             bonus_sales_query = get_store_sales_query(today, recid_plo, excluded_recid_plu_str)
             if verbose:
                 await update.message.reply_text(f'bonus_sales_query: {bonus_sales_query}')
+            
+            today_bonus_sales_df = pd.read_sql(bonus_sales_query, mariadb_engine)
+            if verbose:
+                await update.message.reply_text(f'today_bonus_sales_df: {today_bonus_sales_df}')
+
+            gross_bonus_sales = today_bonus_sales_df['gross_sales'].values[0]
+            if verbose:
+                await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
         
         except Exception as e:
             await update.message.reply_text(f'error: {e}')
