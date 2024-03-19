@@ -193,10 +193,6 @@ WHERE tsi.itemdate = '{date_str}' AND tsh.recid_plo = {recid_plo}
 '''.format(recid_plo = recid_plo,date_str = date_str)
     return query
 
-
-
-
-
 def execute_stmt(stmt, engine):
     try:
         # Obtain a connection from the engine
@@ -211,7 +207,66 @@ def execute_stmt(stmt, engine):
         print(f"An error occurred: {e}")
 
 
+async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    
+    # Default verbose = False
+    verbose = False
 
+    if(len(context.args) > 0):
+        await update.message.reply_text(f'context.args: {context.args}')
+
+        try:
+            # args[0] should contain the time for the timer in seconds
+            arg_0 = context.args[0]
+            if arg_0 == 'verbose':
+                verbose = True
+
+        except (IndexError, ValueError):
+            await update.effective_message.reply_text("Usage: /sales <command>")
+            await update.effective_message.reply_text("Commands: /sales verbose")
+    
+    chat_id = update.message.chat_id
+    if verbose:
+        await update.message.reply_text(f'chat_id: {chat_id}')
+
+    
+    store_id = get_user_store_access(chat_id)
+    if verbose:
+        await update.message.reply_text(f'Store ID: {store_id}')
+
+    if store_id:
+        recid_plo, store_name = get_store_details(store_id)
+        if verbose:
+            await update.message.reply_text(f'recid_pol: {recid_plo}')
+            await update.message.reply_text(f'store_name: {store_name}')
+        
+        today = pd.to_datetime('today')
+        if verbose:
+            await update.message.reply_text(f'today: {today}')
+
+
+        query = get_store_sales(today, recid_plo)
+        if verbose:
+            await update.message.reply_text(f'query: {query}')
+
+        today_sales_df = pd.read_sql(query, mariadb_engine)
+        if verbose:
+            await update.message.reply_text(f'today_sales_df: {today_sales_df}')
+
+        gross_sales = today_sales_df['gross_sales'].values[0]
+        if verbose:
+            await update.message.reply_text(f'gross_sales: {gross_sales}')
+
+        if(gross_sales>0):
+            today_str = today.strftime("%Y-%m-%d")
+            await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
+
+        else:
+            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+
+    else:
+        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
+        await update.message.reply_text(f'Your chat_id is: {chat_id}')
 
 
 
@@ -223,6 +278,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("sales", sales))
+    application.add_handler(CommandHandler("test", test))
 
 
     # Run the bot until the user presses Ctrl-C
