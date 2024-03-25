@@ -71,6 +71,27 @@ telegram_database = 'telegram_db'
 telegram_connection_string = f"mysql+mysqlconnector://{telegram_user}:{telegram_password}@{telegram_host}:{telegram_port}/{telegram_database}"
 telegram_engine = create_engine(telegram_connection_string)
 
+def log(level, status, command, user_id, chat_id, username, first_name, last_name, message):
+    created_at = pd.to_datetime('now')
+    query = '''
+    INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
+    '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
+    execute_stmt(query, telegram_engine)
+
+# Configure logging to use MySQL database
+class MySQLHandler(logging.Handler):
+    def emit(self, record):
+        # log(record.levelname, record.status, record.script_name, record.getMessage())
+        log(record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
+
+# Add MySQL handler to root logger
+mysql_handler = MySQLHandler()
+# mysql_handler.setLevel(logging.INFO)  # Set desired logging level
+logging.getLogger().addHandler(mysql_handler)
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
@@ -235,13 +256,29 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 verbose = True
 
         except (IndexError, ValueError):
-            await update.effective_message.reply_text("Usage: /sales <command>")
-            await update.effective_message.reply_text("Commands: /sales verbose")
+            await update.effective_message.reply_text("Usage: /test <command>")
+            await update.effective_message.reply_text("Commands: /test verbose")
     
     chat_id = update.message.chat_id
     if verbose:
         await update.message.reply_text(f'chat_id: {chat_id}')
+    
+    user = update.effective_user
+    user_id = user.id
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
 
+    username = user.username if user.username else ''
+    if verbose:
+        await update.message.reply_text(f'username: {username}')
+
+    first_name = user.first_name
+    if verbose:
+        await update.message.reply_text(f'first_name: {first_name}')
+
+    last_name = user.last_name if user.last_name else ''
+    if verbose:
+        await update.message.reply_text(f'last_name: {last_name}')
     
     store_id = get_user_store_access(chat_id)
     if verbose:
@@ -300,6 +337,8 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+            logging.info('test', extra={'status': 'COMPLETE', 'command': 'test', 'user_id': f'{user_id}', 'chat_id': f'{chat_id}', 'first_name':f'{first_name}', 'last_name': f'{last_name}'})
+            # log(, , record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
         
         # try:
 
@@ -310,6 +349,9 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
         await update.message.reply_text(f'Your chat_id is: {chat_id}')
+
+        # logging.error(error_message, extra={'status': 'ERROR', 'script_name': script_name})
+        # logging.info('', extra={'status': 'COMPLETE', 'script_name': script_name})
 
 
 def main() -> None:
