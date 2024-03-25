@@ -238,7 +238,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if(len(context.args) > 0):
         reply_text = f'context.args: {context.args}'
         await update.message.reply_text(reply_text)
-        message += reply_text
+        message = reply_text
 
         try:
             # args[0] should contain the time for the timer in seconds
