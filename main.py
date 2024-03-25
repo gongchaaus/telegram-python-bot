@@ -337,7 +337,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
-            logging.info('test', extra={'status': 'COMPLETE', 'command': 'test', 'user_id': f'{user_id}', 'chat_id': f'{chat_id}', 'first_name':f'{first_name}', 'last_name': f'{last_name}'})
+            # logging.info('test', extra={'status': 'COMPLETE', 'command': 'test', 'user_id': f'{user_id}', 'chat_id': f'{chat_id}', 'first_name':f'{first_name}', 'last_name': f'{last_name}'})
             # log(, , record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
         
         # try:
@@ -349,9 +349,6 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
         await update.message.reply_text(f'Your chat_id is: {chat_id}')
-
-        # logging.error(error_message, extra={'status': 'ERROR', 'script_name': script_name})
-        # logging.info('', extra={'status': 'COMPLETE', 'script_name': script_name})
 
 
 def main() -> None:
