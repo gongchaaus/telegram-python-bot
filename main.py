@@ -20,15 +20,6 @@ import logging
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
-# Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
-# set higher logging level for httpx to avoid all GET and POST requests being logged
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
-logger = logging.getLogger(__name__)
-
 import pandas as pd
 import numpy as np
 
@@ -87,8 +78,8 @@ class MySQLHandler(logging.Handler):
 mysql_handler = MySQLHandler()
 # mysql_handler.setLevel(logging.INFO)  # Set desired logging level
 logging.getLogger().addHandler(mysql_handler)
-# logger = logging.getLogger()
-# logger.setLevel(logging.DEBUG)
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
