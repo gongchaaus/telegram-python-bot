@@ -241,6 +241,23 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     if verbose:
         await update.message.reply_text(f'chat_id: {chat_id}')
+        
+    user = update.effective_user
+    user_id = user.id
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
+
+    username = user.username if user.username else ''
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
+
+    first_name = user.first_name
+    if verbose:
+        await update.message.reply_text(f'first_name: {user_id}')
+
+    last_name = user.last_name if user.last_name else ''
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
 
     
     store_id = get_user_store_access(chat_id)
