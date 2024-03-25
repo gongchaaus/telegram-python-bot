@@ -81,13 +81,12 @@ def log(level, status, command, user_id, chat_id, username, first_name, last_nam
 # Configure logging to use MySQL database
 class MySQLHandler(logging.Handler):
     def emit(self, record):
-        # log(record.levelname, record.status, record.script_name, record.getMessage())
         log(record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
 
 # Add MySQL handler to root logger
 mysql_handler = MySQLHandler()
 # mysql_handler.setLevel(logging.INFO)  # Set desired logging level
-# logging.getLogger().addHandler(mysql_handler)
+logging.getLogger().addHandler(mysql_handler)
 # logger = logging.getLogger()
 # logger.setLevel(logging.DEBUG)
 
