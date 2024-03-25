@@ -78,11 +78,11 @@ def log(level, status, command, user_id, chat_id, username, first_name, last_nam
     '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
     execute_stmt(query, telegram_engine)
 
-# # Configure logging to use MySQL database
-# class MySQLHandler(logging.Handler):
-#     def emit(self, record):
-#         # log(record.levelname, record.status, record.script_name, record.getMessage())
-#         log(record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
+# Configure logging to use MySQL database
+class MySQLHandler(logging.Handler):
+    def emit(self, record):
+        # log(record.levelname, record.status, record.script_name, record.getMessage())
+        log(record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
 
 # # Add MySQL handler to root logger
 # mysql_handler = MySQLHandler()
