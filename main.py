@@ -105,6 +105,15 @@ def upsert_user_details(user, message) -> None:
     return upsert_query
 
 
+# Setup Logging Function
+def log(level, status, command, user_id, chat_id, username, first_name, last_name, message):
+    created_at = pd.to_datetime('now')
+    query = '''
+    INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
+    '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
+    execute_stmt(query, telegram_engine)
+
+
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     # Default verbose = False
@@ -241,7 +250,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     if verbose:
         await update.message.reply_text(f'chat_id: {chat_id}')
-        
+
     user = update.effective_user
     user_id = user.id
     if verbose:
@@ -314,7 +323,9 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
             
             await update.message.reply_text(f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
-        
+
+            log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, 'test_message')
+
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
         
