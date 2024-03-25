@@ -224,7 +224,8 @@ def execute_stmt(stmt, engine):
 def log(level, status, script_name, message):
     created_at = pd.to_datetime('now')
     query = '''
-    INSERT INTO logs (created_at, level, status, script_name, message) VALUES ('{}', '{}', '{}', '{}', '{}')
+    INSERT INTO logs (created_at, level, status, script_name, message)
+    VALUES ('{}', '{}', '{}', '{}', '{}')
     '''.format(created_at, level, status, script_name, message)
     execute_stmt(query, telegram_engine)
 
@@ -235,12 +236,11 @@ class MySQLHandler(logging.Handler):
 
 # Add MySQL handler to root logger
 mysql_handler = MySQLHandler()
-# mysql_handler.setLevel(logging.INFO)  # Set desired logging level
 logging.getLogger().addHandler(mysql_handler)
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
-# logger.info('Log message', extra={'status': 'success', 'command': 'some_command', 'user_id': 123, 'chat_id': 456, 'username': 'john', 'first_name': 'John', 'last_name': 'Doe'})
+logger.debug('Log message', extra={'status': 'success', 'script_name': 'main.py'})
 
 
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
