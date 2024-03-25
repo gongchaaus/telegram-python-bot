@@ -211,14 +211,27 @@ def execute_stmt(stmt, engine):
         print(f"An error occurred: {e}")
 
 
+# # Configure logging to use MySQL database
+# class MySQLHandler(logging.Handler):
+#     def emit(self, record):
+#         created_at = pd.to_datetime('now')
+#         query = '''
+#         INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
+#         '''.format(created_at, record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
+#         execute_stmt(query, telegram_engine)
+
+# Setup Logging Function
+def log(level, status, script_name, message):
+    created_at = pd.to_datetime('now')
+    query = '''
+    INSERT INTO logs (created_at, level, status, script_name, message) VALUES ('{}', '{}', '{}', '{}', '{}')
+    '''.format(created_at, level, status, script_name, message)
+    execute_stmt(query, telegram_engine)
+
 # Configure logging to use MySQL database
 class MySQLHandler(logging.Handler):
     def emit(self, record):
-        created_at = pd.to_datetime('now')
-        query = '''
-        INSERT INTO logs (created_at, level, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
-        '''.format(created_at, record.levelname, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
-        execute_stmt(query, telegram_engine)
+        log(record.levelname, record.status, record.script_name, record.getMessage())
 
 # Add MySQL handler to root logger
 mysql_handler = MySQLHandler()
