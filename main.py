@@ -84,12 +84,12 @@ class MySQLHandler(logging.Handler):
         # log(record.levelname, record.status, record.script_name, record.getMessage())
         log(record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
 
-# # Add MySQL handler to root logger
-# mysql_handler = MySQLHandler()
-# # mysql_handler.setLevel(logging.INFO)  # Set desired logging level
-# logging.getLogger().addHandler(mysql_handler)
-# logger = logging.getLogger()
-# logger.setLevel(logging.DEBUG)
+# Add MySQL handler to root logger
+mysql_handler = MySQLHandler()
+# mysql_handler.setLevel(logging.INFO)  # Set desired logging level
+logging.getLogger().addHandler(mysql_handler)
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
