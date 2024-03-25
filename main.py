@@ -71,12 +71,12 @@ telegram_database = 'telegram_db'
 telegram_connection_string = f"mysql+mysqlconnector://{telegram_user}:{telegram_password}@{telegram_host}:{telegram_port}/{telegram_database}"
 telegram_engine = create_engine(telegram_connection_string)
 
-# def log(level, status, command, user_id, chat_id, username, first_name, last_name, message):
-#     created_at = pd.to_datetime('now')
-#     query = '''
-#     INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
-#     '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
-#     execute_stmt(query, telegram_engine)
+def log(level, status, command, user_id, chat_id, username, first_name, last_name, message):
+    created_at = pd.to_datetime('now')
+    query = '''
+    INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
+    '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
+    execute_stmt(query, telegram_engine)
 
 # # Configure logging to use MySQL database
 # class MySQLHandler(logging.Handler):
