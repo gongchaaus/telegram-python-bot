@@ -328,6 +328,8 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             
             await update.message.reply_text(f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
             await update.message.reply_text(message)
+            message = message.replace("'", "''")
+            message = message[:255]
             query = log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
             await update.message.reply_text(query)
 
