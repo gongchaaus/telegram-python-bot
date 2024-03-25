@@ -247,8 +247,8 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 verbose = True
 
         except (IndexError, ValueError):
-            await update.effective_message.reply_text("Usage: /sales <command>")
-            await update.effective_message.reply_text("Commands: /sales verbose")
+            await update.effective_message.reply_text("Usage: /test <command>")
+            await update.effective_message.reply_text("Commands: /test verbose")
     
     chat_id = update.message.chat_id
     if verbose:
@@ -326,7 +326,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
             
             await update.message.reply_text(f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
-
+            await update.message.reply_text(message)
             log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
 
         else:
