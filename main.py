@@ -87,7 +87,7 @@ class MySQLHandler(logging.Handler):
 # Add MySQL handler to root logger
 mysql_handler = MySQLHandler()
 # mysql_handler.setLevel(logging.INFO)  # Set desired logging level
-logging.getLogger().addHandler(mysql_handler)
+# logging.getLogger().addHandler(mysql_handler)
 # logger = logging.getLogger()
 # logger.setLevel(logging.DEBUG)
 
