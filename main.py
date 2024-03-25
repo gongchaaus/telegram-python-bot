@@ -81,6 +81,7 @@ logging.getLogger().addHandler(mysql_handler)
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
+logger.info('Log message', extra={'status': 'success', 'command': 'some_command', 'user_id': 123, 'chat_id': 456, 'username': 'john', 'first_name': 'John', 'last_name': 'Doe'})
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
