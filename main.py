@@ -112,6 +112,7 @@ def log(level, status, command, user_id, chat_id, username, first_name, last_nam
     INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
     '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
     execute_stmt(query, telegram_engine)
+    return query
 
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -327,7 +328,8 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             
             await update.message.reply_text(f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
             await update.message.reply_text(message)
-            log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
+            query = log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
+            await update.message.reply_text(query)
 
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
