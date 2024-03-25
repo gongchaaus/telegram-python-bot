@@ -16,11 +16,18 @@ bot.
 """
 
 import logging
-# Disable httpx debug logging
-logging.getLogger("httpx").setLevel(logging.WARNING)
 
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+
+# Enable logging
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+# set higher logging level for httpx to avoid all GET and POST requests being logged
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
 
 import pandas as pd
 import numpy as np
@@ -213,38 +220,6 @@ def execute_stmt(stmt, engine):
         print(f"An error occurred: {e}")
 
 
-# # Configure logging to use MySQL database
-# class MySQLHandler(logging.Handler):
-#     def emit(self, record):
-#         created_at = pd.to_datetime('now')
-#         query = '''
-#         INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
-#         '''.format(created_at, record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
-#         execute_stmt(query, telegram_engine)
-
-# Setup Logging Function
-def log(level, status, script_name, message):
-    created_at = pd.to_datetime('now')
-    query = '''
-    INSERT INTO logs (created_at, level, status, script_name, message)
-    VALUES ('{}', '{}', '{}', '{}', '{}')
-    '''.format(created_at, level, status, script_name, message)
-    execute_stmt(query, telegram_engine)
-
-# Configure logging to use MySQL database
-class MySQLHandler(logging.Handler):
-    def emit(self, record):
-        log(record.levelname, record.status, record.script_name, record.getMessage())
-
-# Add MySQL handler to root logger
-mysql_handler = MySQLHandler()
-logging.getLogger().addHandler(mysql_handler)
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-logger.debug('Log message', extra={'status': 'success', 'script_name': 'main.py'})
-
-
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     # Default verbose = False
@@ -260,29 +235,13 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 verbose = True
 
         except (IndexError, ValueError):
-            await update.effective_message.reply_text("Usage: /test <command>")
-            await update.effective_message.reply_text("Commands: /test verbose")
+            await update.effective_message.reply_text("Usage: /sales <command>")
+            await update.effective_message.reply_text("Commands: /sales verbose")
     
     chat_id = update.message.chat_id
     if verbose:
         await update.message.reply_text(f'chat_id: {chat_id}')
-    
-    user = update.effective_user
-    user_id = user.id
-    if verbose:
-        await update.message.reply_text(f'user_id: {user_id}')
 
-    username = user.username if user.username else ''
-    if verbose:
-        await update.message.reply_text(f'username: {username}')
-
-    first_name = user.first_name
-    if verbose:
-        await update.message.reply_text(f'first_name: {first_name}')
-
-    last_name = user.last_name if user.last_name else ''
-    if verbose:
-        await update.message.reply_text(f'last_name: {last_name}')
     
     store_id = get_user_store_access(chat_id)
     if verbose:
@@ -341,8 +300,6 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
-            logging.info('test', extra={'status': 'COMPLETE', 'command': 'test', 'user_id': f'{user_id}', 'chat_id': f'{chat_id}', 'first_name':f'{first_name}', 'last_name': f'{last_name}'})
-            # log(, , record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
         
         # try:
 
