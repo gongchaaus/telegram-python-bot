@@ -108,6 +108,9 @@ def upsert_user_details(user, message) -> None:
 # Setup Logging Function
 def log(level, status, command, user_id, chat_id, username, first_name, last_name, message):
     created_at = pd.to_datetime('now')
+    if(len(message)):
+        message = message.replace("'", "''")
+        message = message[:255]
     query = '''
     INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
     '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
@@ -239,7 +242,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if(len(context.args) > 0):
         reply_text = f'context.args: {context.args}'
         await update.message.reply_text(reply_text)
-        message = reply_text
+        message += reply_text
 
         try:
             # args[0] should contain the time for the timer in seconds
@@ -253,7 +256,9 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     chat_id = update.message.chat_id
     if verbose:
-        await update.message.reply_text(f'chat_id: {chat_id}')
+        reply_text =f'chat_id: {chat_id}'
+        await update.message.reply_text(reply_text)
+        message += reply_text
 
     user = update.effective_user
     user_id = user.id
@@ -327,11 +332,8 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
             
             await update.message.reply_text(f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
-            await update.message.reply_text(message)
-            message = message.replace("'", "''")
-            message = message[:255]
-            query = log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
-            await update.message.reply_text(query)
+
+            log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
 
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
