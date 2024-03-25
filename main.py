@@ -327,7 +327,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
-            # logging.info('test', extra={'status': 'COMPLETE', 'command': 'test', 'user_id': f'{user_id}', 'chat_id': f'{chat_id}', 'first_name':f'{first_name}', 'last_name': f'{last_name}'})
+            logging.info('test', extra={'status': 'COMPLETE', 'command': 'test', 'user_id': f'{user_id}', 'chat_id': f'{chat_id}', 'first_name':f'{first_name}', 'last_name': f'{last_name}'})
             # log(, , record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
         
         # try:
