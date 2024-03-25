@@ -233,9 +233,12 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     # Default verbose = False
     verbose = False
+    message = ''
 
     if(len(context.args) > 0):
-        await update.message.reply_text(f'context.args: {context.args}')
+        reply_text = f'context.args: {context.args}'
+        await update.message.reply_text(reply_text)
+        message += reply_text
 
         try:
             # args[0] should contain the time for the timer in seconds
@@ -324,7 +327,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             
             await update.message.reply_text(f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST')
 
-            log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, 'test_message')
+            log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
 
         else:
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
