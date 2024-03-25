@@ -62,27 +62,6 @@ telegram_database = 'telegram_db'
 telegram_connection_string = f"mysql+mysqlconnector://{telegram_user}:{telegram_password}@{telegram_host}:{telegram_port}/{telegram_database}"
 telegram_engine = create_engine(telegram_connection_string)
 
-def log(level, status, command, user_id, chat_id, username, first_name, last_name, message):
-    created_at = pd.to_datetime('now')
-    query = '''
-    INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
-    '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
-    execute_stmt(query, telegram_engine)
-
-# Configure logging to use MySQL database
-class MySQLHandler(logging.Handler):
-    def emit(self, record):
-        log(record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
-
-# Add MySQL handler to root logger
-mysql_handler = MySQLHandler()
-# mysql_handler.setLevel(logging.INFO)  # Set desired logging level
-logging.getLogger().addHandler(mysql_handler)
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-logger.info('Log message', extra={'status': 'success', 'command': 'some_command', 'user_id': 123, 'chat_id': 456, 'username': 'john', 'first_name': 'John', 'last_name': 'Doe'})
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
@@ -230,6 +209,27 @@ def execute_stmt(stmt, engine):
         print(f"SQLAlchemyError occurred: {e}")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+def log(level, status, command, user_id, chat_id, username, first_name, last_name, message):
+    created_at = pd.to_datetime('now')
+    query = '''
+    INSERT INTO logs (created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message) VALUES ('{}', '{}', '{}', '{}', '{}','{}', '{}', '{}', '{}', '{}')
+    '''.format(created_at, level, status, command, user_id, chat_id, username, first_name, last_name, message)
+    execute_stmt(query, telegram_engine)
+
+# Configure logging to use MySQL database
+class MySQLHandler(logging.Handler):
+    def emit(self, record):
+        log(record.levelname, record.status, record.command, record.user_id, record.chat_id, record.username, record.first_name, record.last_name, record.getMessage())
+
+# Add MySQL handler to root logger
+mysql_handler = MySQLHandler()
+# mysql_handler.setLevel(logging.INFO)  # Set desired logging level
+logging.getLogger().addHandler(mysql_handler)
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+logger.info('Log message', extra={'status': 'success', 'command': 'some_command', 'user_id': 123, 'chat_id': 456, 'username': 'john', 'first_name': 'John', 'last_name': 'Doe'})
 
 
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
