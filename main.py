@@ -93,7 +93,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     # upsert the user details into subscribes in telegram_db
     upsert_query = upsert_user_details(user, message)
-    await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
+
+    reply_text = f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager'
+    await update.message.reply_text(reply_text)
 
     user_id = user.id
     if verbose:
@@ -101,15 +103,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     username = user.username if user.username else ''
     if verbose:
-        await update.message.reply_text(f'user_id: {user_id}')
+        await update.message.reply_text(f'username: {username}')
 
     first_name = user.first_name
     if verbose:
-        await update.message.reply_text(f'first_name: {user_id}')
+        await update.message.reply_text(f'first_name: {first_name}')
 
     last_name = user.last_name if user.last_name else ''
     if verbose:
-        await update.message.reply_text(f'user_id: {user_id}')
+        await update.message.reply_text(f'last_name: {last_name}')
+    
+    message = reply_text
+
     log('INFO', 'COMPLETE', 'start', user_id, chat_id, username, first_name, last_name, message)
 
 def upsert_user_details(user, message) -> None:
@@ -180,15 +185,15 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     username = user.username if user.username else ''
     if verbose:
-        await update.message.reply_text(f'user_id: {user_id}')
+        await update.message.reply_text(f'username: {username}')
 
     first_name = user.first_name
     if verbose:
-        await update.message.reply_text(f'first_name: {user_id}')
+        await update.message.reply_text(f'first_name: {first_name}')
 
     last_name = user.last_name if user.last_name else ''
     if verbose:
-        await update.message.reply_text(f'user_id: {user_id}')
+        await update.message.reply_text(f'last_name: {last_name}')
 
     
     store_id = get_user_store_access(chat_id)
