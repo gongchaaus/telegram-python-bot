@@ -72,6 +72,21 @@ telegram_connection_string = f"mysql+mysqlconnector://{telegram_user}:{telegram_
 telegram_engine = create_engine(telegram_connection_string)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    verbose = False
+
+    if(len(context.args) > 0):
+        await update.message.reply_text(f'context.args: {context.args}')
+
+        try:
+            # args[0] should contain the time for the timer in seconds
+            arg_0 = context.args[0]
+            if arg_0 == 'verbose':
+                verbose = True
+
+        except (IndexError, ValueError):
+            await update.effective_message.reply_text("Usage: /start <command>")
+            await update.effective_message.reply_text("Commands: /start verbose")
+
     """Send a message when the command /start is issued."""
     user = update.effective_user
     message = update.message
@@ -79,6 +94,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # upsert the user details into subscribes in telegram_db
     upsert_query = upsert_user_details(user, message)
     await update.message.reply_text(f'You\'re chat id is: {chat_id}\nPlease share your chat id with your manager')
+
+    user_id = user.id
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
+
+    username = user.username if user.username else ''
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
+
+    first_name = user.first_name
+    if verbose:
+        await update.message.reply_text(f'first_name: {user_id}')
+
+    last_name = user.last_name if user.last_name else ''
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
+    log('INFO', 'COMPLETE', 'start', user_id, chat_id, username, first_name, last_name, message)
 
 def upsert_user_details(user, message) -> None:
     upsert_query = '''
