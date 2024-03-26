@@ -122,6 +122,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     # Default verbose = False
     verbose = False
+    message = ''
 
     if(len(context.args) > 0):
         await update.message.reply_text(f'context.args: {context.args}')
@@ -139,6 +140,23 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     if verbose:
         await update.message.reply_text(f'chat_id: {chat_id}')
+    
+    user = update.effective_user
+    user_id = user.id
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
+
+    username = user.username if user.username else ''
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
+
+    first_name = user.first_name
+    if verbose:
+        await update.message.reply_text(f'first_name: {user_id}')
+
+    last_name = user.last_name if user.last_name else ''
+    if verbose:
+        await update.message.reply_text(f'user_id: {user_id}')
 
     
     store_id = get_user_store_access(chat_id)
@@ -169,14 +187,27 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         if(gross_sales>0):
             today_str = today.strftime("%Y-%m-%d")
-            await update.message.reply_text(f'{store_name} on {today_str}: ${gross_sales} incl. GST')
+            reply_text = f'{store_name} on {today_str}: ${gross_sales} incl. GST'
+            await update.message.reply_text(reply_text)
+            message += reply_text
+            log('INFO', 'COMPLETE', 'sales', user_id, chat_id, username, first_name, last_name, message)
 
         else:
-            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
+            reply_text = f'{store_name} has no sales on {today_str} yet'
+            await update.message.reply_text(reply_text)
+            message += reply_text
+            log('INFO', 'COMPLETE', 'sales', user_id, chat_id, username, first_name, last_name, message)
 
     else:
-        await update.message.reply_text(f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID')
-        await update.message.reply_text(f'Your chat_id is: {chat_id}')
+        reply_text = f'You have no acces to store sales,\nPlease ask your manager to add your chat id and Store ID'
+        await update.message.reply_text(reply_text)
+        message += reply_text
+        reply_text = f'Your chat_id is: {chat_id}'
+        await update.message.reply_text(reply_text)
+        message += reply_text
+        log('INFO', 'COMPLETE', 'sales', user_id, chat_id, username, first_name, last_name, message)
+
+        
 
 def get_user_store_access(chat_id) -> str:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
