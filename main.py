@@ -227,7 +227,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if verbose:
             await update.message.reply_text(f'gross_sales: {gross_sales}')
         
-            today_str = today.strftime("%Y-%m-%d")
+        today_str = today.strftime("%Y-%m-%d")
         
         if((not gross_sales is None) and (gross_sales>0)):
 
