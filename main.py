@@ -432,7 +432,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             if verbose:
                 await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
             
-            reply_text = f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST'
+            reply_text = f'{store_name}s Adjusted Gross Sales on {today_str}: ${gross_bonus_sales} incl. GST'
             await update.message.reply_text(reply_text)
             message += reply_text
             log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
