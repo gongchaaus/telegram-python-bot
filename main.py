@@ -189,15 +189,15 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     username = user.username if user.username else ''
     if verbose:
-        await update.message.reply_text(f'user_id: {user_id}')
+        await update.message.reply_text(f'username: {username}')
 
     first_name = user.first_name
     if verbose:
-        await update.message.reply_text(f'first_name: {user_id}')
+        await update.message.reply_text(f'first_name: {first_name}')
 
     last_name = user.last_name if user.last_name else ''
     if verbose:
-        await update.message.reply_text(f'user_id: {user_id}')
+        await update.message.reply_text(f'last_name: {last_name}')
 
     
     store_id = get_user_store_access(chat_id)
@@ -312,7 +312,7 @@ WHERE tsi.itemdate = '{date_str}' AND tsh.recid_plo = {recid_plo}'''.format(reci
 
 def get_bonus_exclusion_list():
     sheet_id = '1peA8effpeSTk3duIjxF46V-PrDD8tv3fubTCDEpD940'
-    sheet_name = 'bonus_exclusion'
+    sheet_name = 'ops_bonus_exclusion'
     url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
     exclusion_df = pd.read_csv(url)
     excluded_recid_plu = exclusion_df['recid_plu']
