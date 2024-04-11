@@ -227,10 +227,10 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if verbose:
             await update.message.reply_text(f'gross_sales: {gross_sales}')
         
-        
+        today_str = today.strftime("%Y-%m-%d")
         
         if((not gross_sales is None) and (gross_sales>0)):
-            today_str = today.strftime("%Y-%m-%d")
+
             reply_text = f'{store_name}s Gross Sales on {today_str}: ${gross_sales} incl. GST'
             await update.message.reply_text(reply_text)
             message += reply_text
@@ -264,6 +264,8 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
         else:
             await update.message.reply_text(f'else')
+            await update.message.reply_text(f'store_name: {store_name}')
+            await update.message.reply_text(f'today_str: {today_str}')
             await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
             await update.message.reply_text(reply_text)
             message += reply_text
