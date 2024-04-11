@@ -162,7 +162,9 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = ''
 
     if(len(context.args) > 0):
-        await update.message.reply_text(f'context.args: {context.args}')
+        reply_text = f'context.args: {context.args}'
+        await update.message.reply_text(reply_text)
+        message += reply_text
 
         try:
             # args[0] should contain the time for the timer in seconds
@@ -171,13 +173,15 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 verbose = True
 
         except (IndexError, ValueError):
-            await update.effective_message.reply_text("Usage: /sales <command>")
-            await update.effective_message.reply_text("Commands: /sales verbose")
+            await update.effective_message.reply_text("Usage: /test <command>")
+            await update.effective_message.reply_text("Commands: /test verbose")
     
     chat_id = update.message.chat_id
     if verbose:
-        await update.message.reply_text(f'chat_id: {chat_id}')
-    
+        reply_text =f'chat_id: {chat_id}'
+        await update.message.reply_text(reply_text)
+        message += reply_text
+
     user = update.effective_user
     user_id = user.id
     if verbose:
@@ -185,15 +189,15 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     username = user.username if user.username else ''
     if verbose:
-        await update.message.reply_text(f'username: {username}')
+        await update.message.reply_text(f'user_id: {user_id}')
 
     first_name = user.first_name
     if verbose:
-        await update.message.reply_text(f'first_name: {first_name}')
+        await update.message.reply_text(f'first_name: {user_id}')
 
     last_name = user.last_name if user.last_name else ''
     if verbose:
-        await update.message.reply_text(f'last_name: {last_name}')
+        await update.message.reply_text(f'user_id: {user_id}')
 
     
     store_id = get_user_store_access(chat_id)
@@ -210,6 +214,7 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if verbose:
             await update.message.reply_text(f'today: {today}')
 
+
         query = get_store_sales_query(today, recid_plo)
         if verbose:
             await update.message.reply_text(f'query: {query}')
@@ -221,16 +226,42 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         gross_sales = today_sales_df['gross_sales'].values[0]
         if verbose:
             await update.message.reply_text(f'gross_sales: {gross_sales}')
-
+        
         if(gross_sales>0):
             today_str = today.strftime("%Y-%m-%d")
-            reply_text = f'{store_name} on {today_str}: ${gross_sales} incl. GST'
+            reply_text = f'{store_name}s Gross Sales on {today_str}: ${gross_sales} incl. GST'
             await update.message.reply_text(reply_text)
             message += reply_text
-            log('INFO', 'COMPLETE', 'sales', user_id, chat_id, username, first_name, last_name, message)
+
+            # # # Get Gross Sales for Bonus Calculation
+            excluded_recid_plu = get_bonus_exclusion_list()
+            excluded_recid_plu = excluded_recid_plu.drop_duplicates()
+            if verbose:
+                await update.message.reply_text(f'excluded_recid_plu: {excluded_recid_plu}')
+
+            excluded_recid_plu_str = ','.join(excluded_recid_plu.astype(str).tolist())
+            if verbose:
+                await update.message.reply_text(f'excluded_recid_plu_str: {excluded_recid_plu_str}')
+            
+            bonus_sales_query = get_store_sales_query(today, recid_plo, excluded_recid_plu_str)
+            if verbose:
+                await update.message.reply_text(f'bonus_sales_query: {bonus_sales_query}')
+            
+            today_bonus_sales_df = pd.read_sql(bonus_sales_query, mariadb_engine)
+            if verbose:
+                await update.message.reply_text(f'today_bonus_sales_df: {today_bonus_sales_df}')
+
+            gross_bonus_sales = today_bonus_sales_df['gross_sales'].values[0]
+            if verbose:
+                await update.message.reply_text(f'gross_bonus_sales: {gross_bonus_sales}')
+            
+            reply_text = f'{store_name}s Gross Sales excl. LTOs & Merchandises on {today_str}: ${gross_bonus_sales} incl. GST'
+            await update.message.reply_text(reply_text)
+            message += reply_text
+            log('INFO', 'COMPLETE', 'test', user_id, chat_id, username, first_name, last_name, message)
 
         else:
-            reply_text = f'{store_name} has no sales on {today_str} yet'
+            await update.message.reply_text(f'{store_name} has no sales on {today_str} yet')
             await update.message.reply_text(reply_text)
             message += reply_text
             log('INFO', 'COMPLETE', 'sales', user_id, chat_id, username, first_name, last_name, message)
