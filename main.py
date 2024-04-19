@@ -334,8 +334,9 @@ def execute_stmt(stmt, engine):
 
 
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await bot.sendChatAction(chat_id=update.message.chat_id, action = telegram.ChatAction.TYPING)
-    
+
+    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+
     # Default verbose = False
     verbose = False
     message = ''
@@ -364,7 +365,8 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6225546622:AAEUKdH5aK2IXhF_8IgefCtgFArDkRiOokk").build()
+    token = "6225546622:AAEUKdH5aK2IXhF_8IgefCtgFArDkRiOokk"
+    application = Application.builder().token(token).build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
