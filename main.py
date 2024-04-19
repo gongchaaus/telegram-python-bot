@@ -17,7 +17,7 @@ bot.
 
 import logging
 
-from telegram import ForceReply, Update
+from telegram import Update, ChatAction
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 # Enable logging
