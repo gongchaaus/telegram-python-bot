@@ -156,7 +156,9 @@ def log(level, status, command, user_id, chat_id, username, first_name, last_nam
 
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    
+    # Before starting the calculation, send a chat action
+    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+ 
     # Default verbose = False
     verbose = False
     message = ''
