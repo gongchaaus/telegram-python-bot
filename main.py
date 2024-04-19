@@ -336,7 +336,8 @@ def execute_stmt(stmt, engine):
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     try:
-        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        # await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        test = await update.effective_chat.send_chat_action(action="upload_document")
     except Exception as e:
         reply_text = f'{e}'
         await update.message.reply_text(reply_text)
