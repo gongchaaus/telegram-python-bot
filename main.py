@@ -157,6 +157,8 @@ def log(level, status, command, user_id, chat_id, username, first_name, last_nam
 
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+    await update.effective_chat.send_chat_action(action="typing")
  
     # Default verbose = False
     verbose = False
