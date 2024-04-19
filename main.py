@@ -278,7 +278,6 @@ async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         log('INFO', 'COMPLETE', 'sales', user_id, chat_id, username, first_name, last_name, message)
 
         
-
 def get_user_store_access(chat_id) -> str:
     sheet_id = '1rqOeBjA9drmTnjlENvr57RqL5-oxSqe_KGdbdL2MKhM'
     sheet_name = 'Access'
@@ -359,7 +358,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     reply_text =f'please type /start or /sales'
     await update.message.reply_text(reply_text)
     message += reply_text
-    
+
 
 def main() -> None:
     """Start the bot."""
