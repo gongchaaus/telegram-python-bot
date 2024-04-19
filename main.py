@@ -337,7 +337,7 @@ def execute_stmt(stmt, engine):
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     try:
-        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=telegram.constants.ChatAction.TYPING)
+        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=context.telegram.constants.ChatAction.TYPING)
         # test = await update.effective_chat.send_chat_action(action="upload_document")
         await asyncio.sleep(5)
     except Exception as e:
