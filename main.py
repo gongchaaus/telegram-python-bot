@@ -156,8 +156,6 @@ def log(level, status, command, user_id, chat_id, username, first_name, last_nam
 
 
 async def sales(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # Before starting the calculation, send a chat action
-    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
  
     # Default verbose = False
     verbose = False
@@ -336,6 +334,7 @@ def execute_stmt(stmt, engine):
 
 
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await bot.sendChatAction(chat_id=update.message.chat_id, action = telegram.ChatAction.TYPING)
     
     # Default verbose = False
     verbose = False
