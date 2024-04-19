@@ -18,7 +18,7 @@ bot.
 import logging
 
 from telegram import Update, ChatAction
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, ContextTypes
 
 # Enable logging
 logging.basicConfig(
@@ -338,7 +338,7 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
     except Exception as e:
-        reply_text = f'{e}'
+        reply_text = f'{e}
         await update.message.reply_text(reply_text)
 
 
